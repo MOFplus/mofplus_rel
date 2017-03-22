@@ -41,6 +41,17 @@ class FF_api(admin.admin_api):
         assert len(atypes) == len(fragments)
         return atypes, fragments
 
+    def get_params_from_ref(self, FF, ref):
+        """
+        Method to look up all FF parameters that are available for a reference system
+        :Parameters:
+            - FF (str): Name of the FF the parameters belong to
+            - ref (str): Name of the reference system the parameters belong to
+        """
+        assert type(FF) == type(ref) == str
+        paramsets = self.mfp.get_params_from_ref(FF,ref)
+        return paramsets
+
     @faulthandler
     def get_params(self,FF, atypes, ptype, potential,fitsystem):
         """
