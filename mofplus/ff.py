@@ -50,7 +50,14 @@ class FF_api(admin.admin_api):
         """
         assert type(FF) == type(ref) == str
         paramsets = self.mfp.get_params_from_ref(FF,ref)
-        return paramsets
+        paramdict = {"onebody":{}, "twobody":{}, "threebody":{}, "fourbody": {}}
+        tr = {1:"onebody", 2:"twobody",3:"threebody",4:"fourbody"}
+        for i in paramsets:
+            typestr =""
+            for a,f in zip(i[0],i[1]):
+                typestr+="%s@%s:" % (a,f)
+            paramdict[tr[len(i[0])]][typestr[:-1]] = (i[2],i[3],i[4]) 
+        return paramdict
 
     @faulthandler
     def get_params(self,FF, atypes, ptype, potential,fitsystem):
@@ -88,11 +95,14 @@ class FF_api(admin.admin_api):
         ret = self.mfp.set_params(FF, atypes, fragments, ptype, potential, fitsystem,params)
         return ret
 
-    def list_FFrefs(self):
+    def list_FFrefs(self,FF):
         """
         Method to list names and meta properties of all available reference systems in the DB
+        :Parameters:
+            - FF (str): Name of the FF the reference systems belong to
         """
-        return self.mfp.list_FFrefs()
+        assert type(FF) == str
+        return self.mfp.list_FFrefs(FF)
 
     def set_FFref(self, name, hdf5path, mfpxpath, comment=""):
         """
