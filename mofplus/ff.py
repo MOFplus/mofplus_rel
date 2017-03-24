@@ -16,21 +16,22 @@ logger = logging.getLogger("mofplus")
 
 bodymapping = {1:"onebody", 2:"twobody",3:"threebody",4:"fourbody"}
 
-allowed_ptypes = {1: ["charge", "vdw"],
+allowed_ptypes = {1: ["charge", "vdw", "equil"],
         2: ["bond", "chargemod", "vdwpr"],
         3: ["angle", "strbnd"],
         4: ["dihedral", "oop"]
         }
 
 allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
-        "vdw": [["LJ",2], ["buck",2], ["damped_buck",2]],
+        "equil": [["equil", 1]],
+        "vdw": [["LJ",2], ["buck",2], ["buck6d",2]],
         "bond": [["harm",2], ["mm3",2], ["quartic",5], ["morse",3]],
         "chargemod": [["point",1], ["gaussian",2], ["slater",2]],
         "vdwpr": [["LJ",2], ["buck",2], ["damped_buck",2]],
-        "angle": [["harm",2],["mm3",2], ["quartic",5], ["anglef",4]],
+        "angle": [["harm",2],["mm3",2], ["quartic",5], ["fourier",5]],
         "strbnd": [["harm",3]],
         "dihedral": [["harm",2], ["cos3",3], ["cos4",4]],
-        "oop": [["harm",1]]}
+        "oop": [["harm",2]]}
 
 
 class FF_api(admin.admin_api):
@@ -71,12 +72,15 @@ class FF_api(admin.admin_api):
         """
         assert type(FF) == type(ref) == str
         paramsets = self.mfp.get_params_from_ref(FF,ref)
-        paramdict = {"onebody":{}, "twobody":{}, "threebody":{}, "fourbody": {}}
+        paramdict = {"onebody":{"charge":{},"vdw":{},"equil":{}}, 
+                "twobody":{"bond":{},"chargemod":{}, "vdwpr":{}}, 
+                "threebody":{"angle":{}, "strbnd":{}}, 
+                "fourbody": {"dihedral":{},"oop":{}}}
         for i in paramsets:
             typestr =""
             for a,f in zip(i[0],i[1]):
                 typestr+="%s@%s:" % (a,f)
-            paramdict[bodymapping[len(i[0])]][typestr[:-1]] = (i[2],i[3],i[4]) 
+            paramdict[bodymapping[len(i[0])]][i[2]][typestr[:-1]] = (i[3],i[4]) 
         return paramdict
 
     @faulthandler
