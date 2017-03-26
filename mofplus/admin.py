@@ -31,7 +31,12 @@ class admin_api(user.user_api):
         - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
-    def __init__(self, experimental = False, banner = False):
+    def __init__(self, experimental = False, banner = False, local = False):
+        self.local = local
+        if local:
+            from local import API
+            self.mfp = API
+            return
         user.user_api.__init__(self,experimental, banner)
         if experimental:
 	    self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/MFP_JPD/API/admin/xmlrpc' % (self.username, self.pw))

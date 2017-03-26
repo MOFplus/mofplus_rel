@@ -44,3 +44,15 @@ def faulthandler(func):
             return ret["faultString"]
         return ret
     return inner
+
+
+def nolocal(func):
+    def inner(self,*args,**kwargs):
+        if self.local == True:
+            logger.error("Method %s not allowed for local DB usage" % func.__name__)
+            return
+        else:
+            return func(*args, **kwargs)
+    return inner
+
+

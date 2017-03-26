@@ -10,7 +10,7 @@ import os
 import molsys
 from assign_FF import sort_bond, sort_angle, sort_dihedral, sort_oop
 import getpass
-from decorator import faulthandler, download
+from decorator import faulthandler, download, nolocal
 import admin
 logger = logging.getLogger("mofplus")
 
@@ -207,6 +207,7 @@ class FF_api(admin.admin_api):
         lines = self.mfp.get_FFfrag(name)
         return lines
 
+    @nolocal
     def list_FFfrags(self):
         """
         Method to list names and meta properties of all available FFfrags in the DB
@@ -234,5 +235,5 @@ if __name__ == '__main__':
         if shellval[0] != '': api.get_net(shellval[0], mol = False)
         if shellval[1] != '': api.get_bb(shellval[1], mol = False)
     else:
-        api = FF_api(banner=True, experimental = False)
+        api = FF_api(banner=True, experimental = False, local = False)
 
