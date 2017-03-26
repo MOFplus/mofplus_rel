@@ -12,13 +12,14 @@ from assign_FF import sort_bond, sort_angle, sort_dihedral, sort_oop
 import getpass
 from decorator import faulthandler, download
 import admin
+
 logger = logging.getLogger("mofplus")
 
 bodymapping = {1:"onebody", 2:"twobody",3:"threebody",4:"fourbody"}
 
 allowed_ptypes = {1: ["charge", "vdw", "equil"],
         2: ["bond", "chargemod", "vdwpr"],
-        3: ["angle", "strbnd"],
+        3: ["angle"],
         4: ["dihedral", "oop"]
         }
 
@@ -28,8 +29,7 @@ allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
         "bond": [["harm",2], ["mm3",2], ["quartic",5], ["morse",3]],
         "chargemod": [["point",1], ["gaussian",2], ["slater",2]],
         "vdwpr": [["LJ",2], ["buck",2], ["damped_buck",2]],
-        "angle": [["harm",2],["mm3",2], ["quartic",5], ["fourier",5]],
-        "strbnd": [["harm",3]],
+        "angle": [["harm",2],["mm3",2], ["quartic",5], ["fourier",5],  ["strbnd", 3]],
         "dihedral": [["harm",2], ["cos3",3], ["cos4",4]],
         "oop": [["harm",2]]}
 
@@ -38,7 +38,7 @@ class FF_api(admin.admin_api):
 
     def format_atypes(self, atypes, ptype, potential):
         """
-        Helper function to extract fragments out of atypes and to 
+        Helper function to extract fragments out of atypes and to
         order atypes and fragements in dependence of the ptype.
         """
         assert type(ptype) == str
@@ -53,7 +53,7 @@ class FF_api(admin.admin_api):
         latypes = atypes.split(":")
         atypes = []
         fragments = []
-        for at in latypes: 
+        for at in latypes:
             atypes.append(at.split("@")[0])
             fragments.append(at.split("@")[1])
         assert len(atypes) == len(fragments)
@@ -72,15 +72,32 @@ class FF_api(admin.admin_api):
         """
         assert type(FF) == type(ref) == str
         paramsets = self.mfp.get_params_from_ref(FF,ref)
-        paramdict = {"onebody":{"charge":{},"vdw":{},"equil":{}}, 
-                "twobody":{"bond":{},"chargemod":{}, "vdwpr":{}}, 
-                "threebody":{"angle":{}, "strbnd":{}}, 
+        paramdict = {"onebody":{"charge":{},"vdw":{},"equil":{}},
+                "twobody":{"bond":{},"chargemod":{}, "vdwpr":{}},
+                "threebody":{"angle":{}},
                 "fourbody": {"dihedral":{},"oop":{}}}
+        # RS (explanation to be improved by JPD)
+        # paramset is a nested list of lists provided by MOF+
+        # it is resorted here in to a number of nested directories for an easier retrieval of data
+        # i loops over the lists from paramset
+        # each entry is
+        #      i[0] : atomtype (len i[0] determines n-body via gloabl bodymapping)
+        #      i[1] : fragment
+        #      i[2] : type (e.g. charge, vdw, equiv)   TODO: change euilv -> equiv
+        #      i[3] : ptype
+        #      i[4] : paramstring
         for i in paramsets:
             typestr =""
             for a,f in zip(i[0],i[1]):
                 typestr+="%s@%s:" % (a,f)
-            paramdict[bodymapping[len(i[0])]][i[2]][typestr[:-1]] = (i[3],i[4]) 
+            # cut off last ":"
+            typestr = typestr[:-1]
+            typedir = paramdict[bodymapping[len(i[0])]][i[2]]
+            if typestr in typedir:
+                # another term .. append
+                typedir[typestr].append((i[3],i[4]))
+            else:
+                typedir[typestr] = [(i[3],i[4])]
         return paramdict
 
     @faulthandler
@@ -117,7 +134,7 @@ class FF_api(admin.admin_api):
         assert type(params) == list
         atypes, fragments = self.format_atypes(atypes,ptype, potential)
         rl = {i[0]:i[1] for i in allowed_potentials[ptype]}[potential]
-        if len(params) != rl: 
+        if len(params) != rl:
             raise ValueError("Required lenght for %s %s is %i" %(ptype,potential,rl))
         ret = self.mfp.set_params(FF, atypes, fragments, ptype, potential, fitsystem,params)
         return ret
@@ -218,7 +235,7 @@ class FF_api(admin.admin_api):
         return self.mfp.get_parameter_history(id)
 
     def get_FFfit(self, id):
-        return 
+        return
 
     def set_FFfit(self,id):
         return
