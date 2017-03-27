@@ -5,6 +5,7 @@ import xmlrpclib
 from xmlrpclib import ServerProxy
 import molsys.stow as stow
 import sys
+import string
 import logging
 import os
 import molsys
@@ -19,19 +20,19 @@ logger = logging.getLogger("mofplus")
 bodymapping = {1:"onebody", 2:"twobody",3:"threebody",4:"fourbody"}
 
 allowed_ptypes = {1: ["charge", "vdw", "equil"],
-        2: ["bond", "chargemod", "vdwpr"],
-        3: ["angle"],
-        4: ["dihedral", "oop"]
+        2: ["bnd", "chargemod", "vdwpr"],
+        3: ["ang"],
+        4: ["dih", "oop"]
         }
 
 allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
         "equil": [["equil", 1]],
         "vdw": [["LJ",2], ["buck",2], ["buck6d",2]],
-        "bond": [["harm",2], ["mm3",2], ["quartic",5], ["morse",3]],
+        "bnd": [["harm",2], ["mm3",2], ["quartic",5], ["morse",3]],
         "chargemod": [["point",1], ["gaussian",2], ["slater",2]],
         "vdwpr": [["LJ",2], ["buck",2], ["damped_buck",2]],
-        "angle": [["harm",2],["mm3",2], ["quartic",5], ["fourier",5],  ["strbnd", 3]],
-        "dihedral": [["harm",2], ["cos3",3], ["cos4",4]],
+        "ang": [["harm",2],["mm3",2], ["quartic",5], ["fourier",5],  ["strbnd", 3]],
+        "dih": [["harm",2], ["cos3",3], ["cos4",4]],
         "oop": [["harm",2]]}
 
 
@@ -43,21 +44,13 @@ class FF_api(admin.admin_api):
         order atypes and fragements in dependence of the ptype.
         """
         assert type(ptype) == str
-        if ptype == "bond":
-            atypes = sort_bond(atypes)
-        elif ptype == "angle":
-            atypes = sort_angle(atypes)
-        elif ptype == "oop":
-            atypes = sort_oop(atypes)
-        elif ptype == "dihedral":
-            atypes = sort_dihedral(atypes)
-        latypes = atypes.split(":")
-        atypes = []
-        fragments = []
-        for at in latypes:
-            atypes.append(at.split("@")[0])
-            fragments.append(at.split("@")[1])
-        assert len(atypes) == len(fragments)
+        ### split into tuples of aftypes, then sort and then split into 
+        ### frags and atypes
+        aftypes = []
+        for i in string.split(atypes,":"): aftypes.append(aftype(*i.split("@")))
+        aftypes = aftype_sort(aftypes, ptype)
+        atypes  = [i.atype for i in aftypes]
+        fragments = [i.fragtype for i in aftypes]
         if ptype not in allowed_ptypes[len(atypes)]:
             raise ValueError("ptype %s not allowed for %s term" % (ptype, bodymapping[len(atypes)]))
         if potential not in [i[0] for i in allowed_potentials[ptype]]:
@@ -74,9 +67,9 @@ class FF_api(admin.admin_api):
         assert type(FF) == type(ref) == str
         paramsets = self.mfp.get_params_from_ref(FF,ref)
         paramdict = {"onebody":{"charge":afdict(),"vdw":afdict(),"equil":afdict()},
-                "twobody":{"bond":afdict(),"chargemod":afdict(), "vdwpr":afdict()},
-                "threebody":{"angle":afdict()},
-                "fourbody": {"dihedral":afdict(),"oop":afdict()}}
+                "twobody":{"bnd":afdict(),"chargemod":afdict(), "vdwpr":afdict()},
+                "threebody":{"ang":afdict()},
+                "fourbody": {"dih":afdict(),"oop":afdict()}}
         # RS (explanation to be improved by JPD)
         # paramset is a nested list of lists provided by MOF+
         # it is resorted here in to a number of nested directories for an easier retrieval of data
@@ -231,7 +224,6 @@ class FF_api(admin.admin_api):
         lines = self.mfp.get_FFfrag(name)
         return lines
 
-    @nolocal
     def list_FFfrags(self):
         """
         Method to list names and meta properties of all available FFfrags in the DB

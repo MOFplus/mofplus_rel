@@ -81,8 +81,6 @@ def aftype_sort(afl, ic):
         plane = afl[1:]
         plane.sort()
         afl[1:] = plane
-    else:
-        raise ValueError, "Unknown ic %s in aftype_sort" % ic
     return afl
 
 class afdict(object):
