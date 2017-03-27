@@ -12,6 +12,7 @@ from assign_FF import sort_bond, sort_angle, sort_dihedral, sort_oop
 import getpass
 from decorator import faulthandler, download, nolocal
 import admin
+from aftype import aftype, aftype_sort, afdict
 
 logger = logging.getLogger("mofplus")
 
@@ -72,10 +73,10 @@ class FF_api(admin.admin_api):
         """
         assert type(FF) == type(ref) == str
         paramsets = self.mfp.get_params_from_ref(FF,ref)
-        paramdict = {"onebody":{"charge":{},"vdw":{},"equil":{}},
-                "twobody":{"bond":{},"chargemod":{}, "vdwpr":{}},
-                "threebody":{"angle":{}},
-                "fourbody": {"dihedral":{},"oop":{}}}
+        paramdict = {"onebody":{"charge":afdict(),"vdw":afdict(),"equil":afdict()},
+                "twobody":{"bond":afdict(),"chargemod":afdict(), "vdwpr":afdict()},
+                "threebody":{"angle":afdict()},
+                "fourbody": {"dihedral":afdict(),"oop":afdict()}}
         # RS (explanation to be improved by JPD)
         # paramset is a nested list of lists provided by MOF+
         # it is resorted here in to a number of nested directories for an easier retrieval of data
@@ -87,17 +88,19 @@ class FF_api(admin.admin_api):
         #      i[3] : ptype
         #      i[4] : paramstring
         for i in paramsets:
-            typestr =""
-            for a,f in zip(i[0],i[1]):
-                typestr+="%s@%s:" % (a,f)
-            # cut off last ":"
-            typestr = typestr[:-1]
+            #typestr =""
+            #for a,f in zip(i[0],i[1]):
+            #    typestr+="%s@%s:" % (a,f)
+            ## cut off last ":"
+            #typestr = typestr[:-1]
+            typelist = [aftype(a,f) for a,f in zip(i[0],i[1])]
             typedir = paramdict[bodymapping[len(i[0])]][i[2]]
-            if typestr in typedir:
+            tt = tuple(typelist)
+            if tt in typedir:
                 # another term .. append
-                typedir[typestr].append((i[3],i[4]))
+                typedir.appenditem(tt, (i[3],i[4]))
             else:
-                typedir[typestr] = [(i[3],i[4])]
+                typedir[tt] = [(i[3],i[4])]
         return paramdict
  
     @faulthandler
