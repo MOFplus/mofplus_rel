@@ -250,5 +250,5 @@ if __name__ == '__main__':
         if shellval[0] != '': api.get_net(shellval[0], mol = False)
         if shellval[1] != '': api.get_bb(shellval[1], mol = False)
     else:
-        api = FF_api(banner=True, experimental = False, local =True)
+        api = FF_api(banner=True, experimental = False, local =False)
 
