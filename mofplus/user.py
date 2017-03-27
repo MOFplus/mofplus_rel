@@ -34,8 +34,12 @@ class user_api(object):
         - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
-    def __init__(self,experimental=False, banner = False):
+    def __init__(self,experimental=False, banner = False, local = False):
+        self.local = local
         if banner: self.print_banner()
+        if self.local: 
+            self.init_local()
+            return
         try:
             self.username = os.environ['MFPUSER']
             self.pw       = os.environ['MFPPW']
@@ -48,6 +52,17 @@ class user_api(object):
             #self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/call/xmlrpc' % (username, pw))
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw))
         self.check_connection()
+        return
+
+    def init_local(self, credentials=None):
+        try:
+            localpath = os.environ["MFPLOC"]
+        except KeyError:
+            logger.error("No path to local store set!")
+            raise KeyError
+        from local import API
+        self.mfp = API
+        logger.info("Connection to local DB established")
         return
 
     def credentials_from_cmd(self):

@@ -99,7 +99,7 @@ class FF_api(admin.admin_api):
             else:
                 typedir[typestr] = [(i[3],i[4])]
         return paramdict
-
+ 
     @faulthandler
     def get_params(self,FF, atypes, ptype, potential,fitsystem):
         """
@@ -117,6 +117,7 @@ class FF_api(admin.admin_api):
         params = self.mfp.get_params(FF, atypes, fragments, ptype, potential, fitsystem)
         return params
 
+    @nolocal
     @faulthandler
     def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
         """
@@ -148,6 +149,7 @@ class FF_api(admin.admin_api):
         assert type(FF) == str
         return self.mfp.list_FFrefs(FF)
 
+    @nolocal
     def set_FFref(self, name, hdf5path, mfpxpath, comment=""):
         """
         Method to create a new entry in the FFref table and to upload a file with
@@ -163,7 +165,8 @@ class FF_api(admin.admin_api):
             mfpx = handle.read()
         self.mfp.set_FFref(name, binary, mfpx, comment)
         return
-
+    
+    @nolocal
     def set_FFref_graph(self,name, mfpxpath):
         with open(mfpxpath, "r") as handle:
             mfpx = handle.read()
@@ -194,6 +197,7 @@ class FF_api(admin.admin_api):
         bstr = self.mfp.get_FFref(name).data
         return bstr
 
+    @nolocal
     def set_FFfrag(self,name,path,comment=""):
         """
         Method to create a new entry in the FFfrags table.
@@ -235,12 +239,6 @@ class FF_api(admin.admin_api):
         assert type(id) == int
         return self.mfp.get_parameter_history(id)
 
-    def get_FFfit(self, id):
-        return
-
-    def set_FFfit(self,id):
-        return
-
 if __name__ == '__main__':
     option = [
             ['', 't', 'topology', "Name of topology which is downloaded from mofplus"],
@@ -252,5 +250,5 @@ if __name__ == '__main__':
         if shellval[0] != '': api.get_net(shellval[0], mol = False)
         if shellval[1] != '': api.get_bb(shellval[1], mol = False)
     else:
-        api = FF_api(banner=True, experimental = False, local = False)
+        api = FF_api(banner=True, experimental = False, local =True)
 

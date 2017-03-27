@@ -2,6 +2,8 @@
 import os
 from db import db
 
+locpath = os.environ["MFPLOC"]
+
 def search_cs(cs, vs = None):
     import netsearch as ns
     r = ns.search_cs_and_vs(db, cs = cs, vs = vs)
@@ -20,9 +22,8 @@ def get_vs(name):
     return ndb.get_vs(db,name)
 
 def get_net(name):
-    import apihelper as ah
     row = db(db.nets.name== name).select()[0]
-    f = open('applications/MOFplus_final2/static/nets/files/'+row.topofile, 'r')
+    f = open(locpath +'/nets/files/'+row.topofile, 'r')
     string = f.read()
     f.close()
     return string
@@ -37,14 +38,14 @@ def get_list_of_bbs():
 
 def get_bb(name):
     row = db(db.bbs.name==name).select()[0]
-    f = open('applications/MOFplus_final2/static/bbs/files/'+row.xyzfile, 'r')
+    f = open(locpath +'bbs/files/'+row.xyzfile, 'r')
     string = f.read()
     f.close()
     return string
 
 def get_mof_structure_by_id(strucid):
     row = db(db.structures.id == strucid).select()[0]
-    f = open('applications/MOFplus_final2/static/mofs/structures/'+row.filename, 'r')
+    f = open(locpath+'mofs/structures/'+row.filename, 'r')
     string = f.read()
     f.close()
     return string, row.name

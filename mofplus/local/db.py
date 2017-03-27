@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
-
+import os
 from pydal import DAL, Field
 
-db = DAL('mysql://root:d3v_w34v3r@bilbo.aci.rub.de/mysql',lazy_tables=True,fake_migrate_all=True)
+db = DAL('mysql://root:d3v_w34v3r@bilbo.aci.rub.de/mysql',lazy_tables=False,fake_migrate_all=True)
 
-path2files = "test"
+locpath = os.environ["MFPLOC"]
+if os.path.exists(locpath+ '/database') == False:
+    os.makedirs(locpath+"/database")
+dbpath = locpath + "/database"
+path2files = locpath
 
 
 #########################################################################
@@ -46,7 +50,8 @@ db.define_table('nets',\
     Field('xyzfile', 'upload', uploadfolder=path2files+'/static/nets/files'),\
     Field('txyzfile','upload',uploadfolder=path2files+'/static/nets/files'),\
     Field('topofile','upload',uploadfolder=path2files+'/static/nets/files'),\
-    Field('ptxyzfile','upload',uploadfolder=path2files+'/static/nets/files'))
+    Field('ptxyzfile','upload',uploadfolder=path2files+'/static/nets/files'),
+    migrate = dbpath + "/nets.table")
 
 db.define_table('vertex',\
     Field('netID','reference nets'),\
@@ -65,35 +70,35 @@ db.define_table('vertex',\
     Field('cs8', 'integer'),
     Field('cs9', 'integer'),
     Field('cs10','integer'),
-    Field('vs', 'string'))
+    Field('vs', 'string'),
+    migrate = dbpath + "/vertex.table")
+
 
 db.define_table('geoms',\
     Field('name','string'),\
     Field('coordination_number','integer'),\
     Field('symmetry','string'),\
-    Field('xyzfile','upload',uploadfolder=path2files+'/static/geoms/files'))
+    Field('xyzfile','upload',uploadfolder=path2files+'/static/geoms/files'),
+    migrate = dbpath + "/geoms.table")
 
 db.define_table('shapes',\
     Field('penalty','double'),\
     Field('vertexID','reference vertex'),\
-    Field('geoID', 'reference geoms'))
-
-db.define_table('conn',\
-    Field('fromID','reference vertex'),\
-    Field('toID','reference vertex'),\
-    Field('nconns','integer'),\
-    Field('toself','boolean'))
+    Field('geoID', 'reference geoms'),
+    migrate = dbpath + "/shapes.table")
 
 db.define_table('edge',\
     Field('fromID','reference vertex'),\
     Field('toID','reference vertex'),\
     Field('fromcount','integer'),\
-    Field('tocount','integer'))
+    Field('tocount','integer'),
+    migrate = dbpath + "/edge.table")
 
 db.define_table('net_relations',\
     Field('pID','reference nets'),\
     Field('cID','reference nets'),\
-    Field('pattern','string'))
+    Field('pattern','string'),
+    migrate = dbpath + "/net_relations.table")
 
 
 ### MOFs are uniquely defined by its reference to !one topology and !a set of building blocks
@@ -101,19 +106,15 @@ db.define_table('mofs',\
     Field('name','string', unique = True),\
     Field('knownas','string'),\
     Field('net','reference nets'),\
-    format='%(name)s') #,migrate = True, fake_migrate=True
-
-### since a mof may have several relevant publications and one particular publication can have
-### several mofs they refer to, we need a many2many relation here. 
-db.define_table('mofspublications',\
-    Field('mofID','reference mofs'),\
-    Field('publicationID','reference publications'))
+    format='%(name)s',
+    migrate = dbpath + "/mofs.table")
 
 ###level of theory
 db.define_table('lot',\
     Field('name','string'),\
     Field('description','text'),\
-    format='%(name)s')
+    format='%(name)s', 
+    migrate = dbpath + "/lot.table")
 
 ### storage for all MOF models,
 db.define_table('structures',\
@@ -127,7 +128,8 @@ db.define_table('structures',\
     Field('beta', 'double'),\
     Field('gamma', 'double'),\
     Field('comment', 'text'),\
-    Field('mofID','reference mofs'))
+    Field('mofID','reference mofs'),
+    migrate = dbpath + "/structures.table")
 
 ### building blocks are stored here
 db.define_table('bbs',\
@@ -135,32 +137,30 @@ db.define_table('bbs',\
     Field('coordination_number','integer'),\
     Field('sum_formula','string'),\
     Field('type','string'),\
-    #requires=IS_IN_SET(('organic','inorganic'))),\
     Field('xyzfile', 'upload', uploadfolder=path2files+'/static/bbs/files'),\
-    Field('frag', 'boolean', default=False))
+    Field('frag', 'boolean', default=False),
+    migrate = dbpath + "/bbs.table")
     #Field('stxyzfile','upload',uploadfolder=path2files+'/static/bbs/files'),\
     #Field('reagentID','reference reagents'),\ ### see below for discussion on reagents table.
 
 ### many2many to connect MOFs with the BBs
 db.define_table('mofsbbs',\
     Field('mofID', 'reference mofs'),\
-    Field('bbID', 'reference bbs'))
+    Field('bbID', 'reference bbs'),
+    migrate = dbpath + "/mofsbbs.table")
 
 db.define_table('bbshapes',\
     Field('penalty','double'),\
     Field('bbID','reference bbs'),\
-    Field('geoID', 'reference geoms'))
+    Field('geoID', 'reference geoms'),
+    migrate = dbpath + "/bbshapes.table")
 
 ### description of the property
 db.define_table('prop_type',\
     Field('name'),\
     Field('unit','string'),\
-    Field('description','text'),format='%(name)s')
-
-db.define_table('showmol',\
-    Field('name','string'),\
-    Field('filename','upload', uploadfolder=path2files+'/static/showmol'),\
-    format='%(name)')
+    Field('description','text'),format='%(name)s',
+    migrate = dbpath + "/proptype.table")
 
 ### single number features like energies, bulk moduli, surface areas and such are stored here
 db.define_table('prop_skal',\
@@ -168,7 +168,8 @@ db.define_table('prop_skal',\
     Field('type','reference prop_type'),\
     #Field('unit','string'),\
     Field('description','text'),\
-    Field('structureID', 'reference structures'))
+    Field('structureID', 'reference structures'),
+    migrate = dbpath + "/prop_skal.table")
 
 ### every attribute that is more than just one number, like XY-graphs and such is stored here
 db.define_table('prop_xy',\
@@ -177,47 +178,50 @@ db.define_table('prop_xy',\
     #Field('unitx','string'),\
     #Field('unity','string'),\
     Field('description','text'),\
-    Field('structureID', 'reference structures'))
+    Field('structureID', 'reference structures'),
+    migrate = dbpath + "/prop_xy.table")
 #session.connect(request, response, cookie_key='yoursecret', compression_level=None)
 
 db.define_table('bbvertices',\
     Field('mofsbbsID','reference mofsbbs'),\
-    Field('vertexID','reference vertex'))
+    Field('vertexID','reference vertex'),
+    migrate = dbpath + "/bbvertices.table")
 
 db.define_table('bbedges',\
     Field('mofsbbsID','reference mofsbbs'),\
     Field('edgeID','reference edge'),\
     Field('v0', 'reference vertex'),\
-    Field('v1', 'reference vertex'))
+    Field('v1', 'reference vertex'),
+    migrate = dbpath + "/bbedges.table")
 
 db.define_table('special_conn',
     Field('bbID', 'reference bbs'),
     Field('idx',  'integer'),
-    Field('nconn','integer'))
+    Field('nconn','integer'),
+    migrate = dbpath + "/special_conn.table")
 
 db.define_table('scvertices',
     Field('vertexID', 'reference vertex'),
     Field('bbvertexID', 'reference bbvertices'),
-    Field('scID', 'reference special_conn'))
-
-db.define_table('scaledtopo',\
-    Field('mofID', 'reference mofs'),\
-    Field('topofile','upload', uploadfolder=path2files+'/static/mofs/scaledtopo'),\
-    Field('orientfile','upload', uploadfolder=path2files+'/static/mofs/scaledtopo'))
+    Field('scID', 'reference special_conn'),
+    migrate = dbpath + "/scvertices.table")
 
 db.define_table('firejobs',\
     Field('jobtype', 'string'),\
     Field('jobID', 'integer'),\
     Field('endtime', 'datetime'),\
-    Field('starttime', 'datetime'))
+    Field('starttime', 'datetime'),
+    migrate = dbpath + "/firejobs.table")
 
 db.define_table('fireweaver',\
     Field('mof', 'reference mofs'),\
     Field('name', 'string'),\
-    Field('comment', 'text'))
+    Field('comment', 'text'),
+    migrate = dbpath + "/fireweaver.table")
 
 db.define_table('fireanalyzer',\
-    Field('structureID', 'reference structures'))
+    Field('structureID', 'reference structures'),
+    migrate = dbpath + "/fireanalyzer.table")
 
 
 ########
@@ -225,24 +229,28 @@ db.define_table('fireanalyzer',\
 ########
 
 db.define_table('atypes',\
-    Field('name', 'string',unique=True),format='%(name)s')
+    Field('name', 'string',unique=True),format='%(name)s',
+    migrate = dbpath + "/atypes.table")
 
 db.define_table('FFfrags',
     Field('name', 'string', unique = True),
     Field('creationtime', 'datetime'),
     Field('comment', 'text', default = ""),
     Field('priority', 'integer'),
-    Field('file', 'upload', uploadfolder=path2files+'/static/FFs/frags'),format='%(name)s')
+    Field('file', 'upload', uploadfolder=path2files+'/static/FFs/frags'),format='%(name)s',
+    migrate = dbpath + "/FFfrags.table")
 
 db.define_table('atypes2FFfrags',
     Field('atypeID', 'reference atypes'),
-    Field('fragID', 'reference FFfrags'))
+    Field('fragID', 'reference FFfrags'),
+    migrate = dbpath + "/atypes2FFfrags.table")
 
 db.define_table('frag_conn',
     Field('frag1', 'reference FFfrags'),
     Field('atype1','reference atypes'),
     Field('frag2', 'reference FFfrags'),
-    Field('atype2','reference atypes'))
+    Field('atype2','reference atypes'),
+    migrate = dbpath + "/frac_conn.table")
     #Field('combined', 'reference bbs'))
 
 db.define_table('FF',
@@ -251,7 +259,8 @@ db.define_table('FF',
     Field('mixing', 'string', default='Lorentz-Bertholot'),
     #Field('chargetype', 'string',requires = IS_IN_SET(['gaussian','slater','point']), default = 'gaussian'),
     Field('cutoff', 'double'),
-    Field('comment', 'text', default=""), format='%(name)s')
+    Field('comment', 'text', default=""), format='%(name)s',
+    migrate = dbpath + "/FF.table")
 
 db.define_table('FFrefs',
     Field('name', 'string', unique = True),
@@ -260,15 +269,18 @@ db.define_table('FFrefs',
     Field('reffile','upload', uploadfolder=path2files+'/static/FFs/refs'),
     Field('graph','upload', uploadfolder=path2files+'/static/FFs/refs'),
     Field('comment', 'text', default=""),
-    format='%(name)s')
+    format='%(name)s',
+    migrate = dbpath + "/FFrefs.table")
 
 db.define_table("FFfrags2FFrefs",
     Field('fragID', 'reference FFfrags'),
-    Field('refID', 'reference FFrefs'))
+    Field('refID', 'reference FFrefs'),
+    migrate = dbpath + "/FFfrags2FFrefs.table")
 
 db.define_table("atypes2FFrefs",
     Field('atypeID', 'reference atypes'),
-    Field('refID', 'reference FFrefs'))
+    Field('refID', 'reference FFrefs'),
+    migrate = dbpath + "/atypes2FFrefs.table")
 
 db.define_table('FFfits',
     #Field('name', 'string', unique = True),
@@ -278,7 +290,8 @@ db.define_table('FFfits',
     Field('input', 'upload', uploadfolder=path2files+'/static/FFs/inp'),
     Field('output', 'upload', uploadfolder=path2files+'/static/FFs/out'),
     Field('refID1', 'reference FFrefs'),
-    Field('comment', 'text', default=""))
+    Field('comment', 'text', default=""),
+    migrate = dbpath + "/FFfits.table")
 
 db.define_table('onebody',
     #Field('FFID', 'reference FF'),
@@ -289,7 +302,8 @@ db.define_table('onebody',
     Field('comment', 'text', default=""),
     Field('atype1', 'reference atypes'),
     Field( 'frag1', 'reference FFfrags'),
-    Field('params', 'json'))
+    Field('params', 'json'),
+    migrate = dbpath + "/onebody.table")
 
 db.define_table('twobody',
     #Field('FFID', 'reference FF'),
@@ -302,7 +316,8 @@ db.define_table('twobody',
     Field( 'frag1', 'reference FFfrags'),
     Field('atype2', 'reference atypes'),
     Field( 'frag2', 'reference FFfrags'),
-    Field('params', 'json'))
+    Field('params', 'json'),
+    migrate = dbpath + "/twobody.table")
 
 db.define_table('threebody',
     #Field('FFID', 'reference FF'),
@@ -317,7 +332,8 @@ db.define_table('threebody',
     Field( 'frag2', 'reference FFfrags'),
     Field('atype3', 'reference atypes'),
     Field( 'frag3', 'reference FFfrags'),
-    Field('params', 'json'))
+    Field('params', 'json'),
+    migrate = dbpath + "/threebody.table")
 
 db.define_table('fourbody',
     #Field('FFID', 'reference FF'),
@@ -334,15 +350,5 @@ db.define_table('fourbody',
     Field( 'frag3', 'reference FFfrags'),
     Field('atype4', 'reference atypes'),
     Field( 'frag4', 'reference FFfrags'),
-    Field('params', 'json'))
-
-
-### software table stores recent versions of molsys, pydlpoly and weaver
-db.define_table('software',
-    Field(  'name', 'string', unique=True),
-    Field(  'changeset', 'integer'),
-    Field(  'branch', 'string', default ='default'),
-    Field(  'about', 'text'),
-    Field(  'logo', 'reference pictures'),
-    Field( 'archive', 'upload', uploadfolder=path2files+'/static/software/archive'),
-    Field( 'doc', 'upload', uploadfolder=path2files+'/static/software/doc'),format='%(name)s %(changeset)s')
+    Field('params', 'json'),
+    migrate = dbpath + "/fourbody.table")

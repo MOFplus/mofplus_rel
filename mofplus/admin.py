@@ -8,7 +8,7 @@ import logging
 import os
 import molsys
 import getpass
-from decorator import faulthandler, download
+from decorator import faulthandler, download, nolocal
 import user
 logger = logging.getLogger("mofplus")
 
@@ -32,12 +32,8 @@ class admin_api(user.user_api):
     """
 
     def __init__(self, experimental = False, banner = False, local = False):
-        self.local = local
-        if local:
-            from local import API
-            self.mfp = API
-            return
-        user.user_api.__init__(self,experimental, banner)
+        user.user_api.__init__(self,experimental, banner, local)
+        if local: return
         if experimental:
 	    self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/MFP_JPD/API/admin/xmlrpc' % (self.username, self.pw))
         else:
@@ -61,7 +57,8 @@ class admin_api(user.user_api):
             logger.error("Not possible to connect to MOF+ admin API. Check your credentials")
             exit()
         return
-
+    
+    @nolocal
     def delete_net(self, name):
         """
         Deletes a net from the db
@@ -71,6 +68,7 @@ class admin_api(user.user_api):
         assert type(name) == str
         self.mfp.delete_net(name)
    
+    @nolocal
     def add_bb_penalties(self,data):
         """
         Method to adds penalties to building blocks
@@ -79,6 +77,7 @@ class admin_api(user.user_api):
         print retstring
         return
 
+    @nolocal
     def upload_weaver_run(self, fwid, fname):
         """
         Method to upload the results of a weaver run to the db
@@ -93,6 +92,7 @@ class admin_api(user.user_api):
         a = self.mfp.upload_weaver_run(data)
         return
 
+    @nolocal
     def upload_mof_structure_by_id(self, fname, strucid):
         """
         Method to upload a structure file to the DB
@@ -107,6 +107,7 @@ class admin_api(user.user_api):
         self.mfp.upload_mof_structure_by_id(data)
         return
 
+    @nolocal
     def upload_topo_file_by_name(self, fname, name):
         """
         Method to upload a topo file to the DB
@@ -122,10 +123,12 @@ class admin_api(user.user_api):
         return
 
     ### method in principle obsolete
+    @nolocal
     def upload_pa_run(self,data):
         ret = self.mfp.upload_pa_run(data)
         return
 
+    @nolocal
     def upload_bbfile_by_name(self, fname, name):
         """
         Method to upload a bb file to the DB
@@ -140,6 +143,7 @@ class admin_api(user.user_api):
         self.mfp.upload_bbfile_by_name(data)
         return
 
+    @nolocal
     def insert_bb(self,name, fname, chemtype, frag = False):
         """
         Method to create a new entry in the bb table.
@@ -156,6 +160,7 @@ class admin_api(user.user_api):
         self.mfp.insert_bb(data)
         return
 
+    @nolocal
     def set_cs(self, name, cs):
         """
         Method to set the cs of a topology.
@@ -169,6 +174,7 @@ class admin_api(user.user_api):
         self.mfp.set_cs(data)
         return
     
+    @nolocal
     def set_vs(self, name, vs):
         """
         Method to set the vs of a topology.
@@ -182,6 +188,7 @@ class admin_api(user.user_api):
         self.mfp.set_vs(data)
         return
     
+    @nolocal
     def connect_nets(self, pnet, cnet, pattern):
         """
         Method to create relationchips between nets in the DB
@@ -197,6 +204,7 @@ class admin_api(user.user_api):
         self.mfp.connect_nets(pnet,cnet,pattern)
         return
 
+    @nolocal
     def add_skal_property(self, strucid, ptype, prop):
         """
         Method to add a skalar property to a structure
@@ -210,6 +218,7 @@ class admin_api(user.user_api):
         self.mfp.add_skal_property(strucid, ptype, prop)
         return
 
+    @nolocal
     def add_xy_property(self,strucid,ptype,data):
         """
         Method to add a dataset as property to the DB
@@ -223,6 +232,7 @@ class admin_api(user.user_api):
         self.mfp.add_xy_property(strucid, ptype,data)
         return
 
+    @nolocal
     def fa_finish(self,faid):
         """
         Method to register a fireanalyzer run as finished

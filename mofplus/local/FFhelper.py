@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 import datetime
 import xmlrpclib
+import os
+
+locpath = os.environ["MFPLOC"]
 
 # methods to retrieve and fill tables with the MOF-FF parameters
 
@@ -258,13 +261,13 @@ def set_fourbody(db, FF, atypes, fragments, ptype, potential,FFfit, params):
 
 def get_FFref(db,name):
     row = db(db.FFrefs.name == name).select()[0]
-    path = 'applications/MOFplus_final2/static/FFs/refs/'+row.reffile
+    path = locpath + '/FFs/refs/'+row.reffile
     with open(path, "rb") as handle:
          return xmlrpclib.Binary(handle.read())
         
 def get_FFref_graph(db,name):
     row = db(db.FFrefs.name == name).select()[0]
-    path = 'applications/MOFplus_final2/static/FFs/refs/'+row.graph
+    path = locpath + '/FFs/refs/'+row.reffile
     with open(path, "r") as handle:
         return handle.read()
     
@@ -310,7 +313,7 @@ def list_FFrefs(db,FF):
 
 def get_FFfrag(db, name):
     row = db(db.FFfrags.name == name).select()[0]
-    path = 'applications/MOFplus_final2/static/FFs/frags/'+row.file
+    path = locpath + '/FFs/frags/'+row.file
     with open(path, "r") as handle:
          return handle.read()
         
