@@ -113,7 +113,6 @@ class FF_api(admin.admin_api):
         params = self.mfp.get_params(FF, atypes, fragments, ptype, potential, fitsystem)
         return params
 
-    @nolocal
     @faulthandler
     def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
         """
@@ -143,7 +142,11 @@ class FF_api(admin.admin_api):
             - FF (str): Name of the FF the reference systems belong to
         """
         assert type(FF) == str
-        return self.mfp.list_FFrefs(FF)
+        res = self.mfp.list_FFrefs(FF)
+        dic = {}
+        for i in res:
+            dic[i[0]] = i[1:]
+        return dic
 
     @nolocal
     def set_FFref(self, name, hdf5path, mfpxpath, comment=""):
@@ -229,6 +232,17 @@ class FF_api(admin.admin_api):
         Method to list names and meta properties of all available FFfrags in the DB
         """
         return self.mfp.list_FFfrags()
+
+    def list_special_atypes(self):
+        """
+        Method to get a dictionary of aftypes with special properties
+        """
+        res = self.mfp.list_special_atypes()
+        dic = {"linear": []}
+        for l in res:
+            af = aftype(l[0], l[1])
+            dic[l[2]].append(af)
+        return dic
 
     def get_parameter_history(self, id):
         assert type(id) == int

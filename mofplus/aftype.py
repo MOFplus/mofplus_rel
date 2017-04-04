@@ -154,11 +154,12 @@ if __name__ == "__main__":
     print a == c
     print a == d
 
-    l = [a,b,c,d]
+    l = [a,b,c]
     l.sort
     print l
 
-    print aftype_sort(l, "oop")
+    print aftype_sort(l, "ang")
+    exit()
 
     print "tuple comparison"
     t1 = (a,b)
