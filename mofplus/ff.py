@@ -28,12 +28,15 @@ allowed_ptypes = {1: ["charge", "vdw", "equil"],
 allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
         "equil": [["equil", 1]],
         "vdw": [["LJ",2], ["buck",2], ["buck6d",2]],
-        "bnd": [["harm",2], ["mm3",2], ["quartic",5], ["morse",3]],
+        "bnd": [["harm",2], ["mm3",2], ["quartic",5], ["morse",3], ["equiv", 2]],
         "chargemod": [["point",1], ["gaussian",2], ["slater",2]],
         "vdwpr": [["LJ",2], ["buck",2], ["damped_buck",2]],
         "ang": [["harm",2],["mm3",2], ["quartic",5], ["fourier",5],  ["strbnd", 3]],
         "dih": [["harm",2], ["cos3",3], ["cos4",4]],
         "oop": [["harm",2]]}
+
+def tr(*args):
+    return string.join([trd[i] for i in args],":")
 
 
 class FF_api(admin.admin_api):
