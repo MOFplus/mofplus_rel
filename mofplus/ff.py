@@ -13,7 +13,7 @@ from assign_FF import sort_bond, sort_angle, sort_dihedral, sort_oop
 import getpass
 from decorator import faulthandler, download, nolocal
 import admin
-from aftype import aftype, aftype_sort, afdict
+from molsys.util.aftypes import aftype, aftype_sort, afdict
 
 logger = logging.getLogger("mofplus")
 
@@ -168,7 +168,7 @@ class FF_api(admin.admin_api):
         self.mfp.set_FFref(name, binary, mfpx, comment)
         return
     
-    @nolocal
+    #@nolocal
     def set_FFref_graph(self,name, mfpxpath):
         with open(mfpxpath, "r") as handle:
             mfpx = handle.read()
