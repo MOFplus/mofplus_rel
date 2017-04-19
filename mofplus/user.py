@@ -41,13 +41,20 @@ class user_api(object):
             self.init_local()
             return
         try:
-            self.username = os.environ['MFPUSER']
-            self.pw       = os.environ['MFPPW']
-        except KeyError:
-            logger.error("Credentials not found!")
-            self.username, self.pw = self.credentials_from_cmd()
+            logger.info("Get credentials from .mofplusrc")
+            self.username, self.pw = self.credentials_from_rc()
+        except IOError:
+            try:
+                logger.error(".mofplusrc not found!")
+                logger.info("Get credentials from environment variables")
+                self.username = os.environ['MFPUSER']
+                self.pw       = os.environ['MFPPW']
+            except KeyError:
+                logger.error("Environment credentials not found!")
+                logger.info("Get credentials from prompt")
+                self.username, self.pw = self.credentials_from_cmd()
         if experimental:
-	    self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/MFP_JPD/API/user/xmlrpc' % (self.username, self.pw))
+            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/MFP_JPD/API/user/xmlrpc' % (self.username, self.pw))
         else:
             #self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/call/xmlrpc' % (username, pw))
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw))
@@ -64,6 +71,16 @@ class user_api(object):
         self.mfp = API
         logger.info("Connection to local DB established")
         return
+
+    def credentials_from_rc(self):
+        """
+        Method to get the credentials from ~/.mofplusrc
+        """
+        mprc_filename = os.environ["HOME"]+'/.mofplusrc'
+        with open(mprc_filename, 'r') as mprc:
+            username = mprc.readline().split()[0]
+            pw       = mprc.readline().split()[0]
+        return username, pw
 
     def credentials_from_cmd(self):
         """
