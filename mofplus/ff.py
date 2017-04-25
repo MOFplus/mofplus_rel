@@ -12,7 +12,8 @@ import molsys
 from assign_FF import sort_bond, sort_angle, sort_dihedral, sort_oop
 import getpass
 from decorator import faulthandler, download, nolocal
-import admin
+#import admin
+import user
 from molsys.util.aftypes import aftype, aftype_sort, afdict
 
 logger = logging.getLogger("mofplus")
@@ -38,8 +39,8 @@ allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
 def tr(*args):
     return string.join([trd[i] for i in args],":")
 
-
-class FF_api(admin.admin_api):
+#class FF_api(admin.admin_api):
+class FF_api(user.user_api):
 
     def format_atypes(self, atypes, ptype, potential):
         """
