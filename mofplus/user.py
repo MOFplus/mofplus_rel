@@ -34,7 +34,7 @@ class user_api(object):
         - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
-    def __init__(self,experimental=False, banner = False, local = False):
+    def __init__(self,experimental=False, banner = False, local = False, localhost = False):
         self.local = local
         if banner: self.print_banner()
         if self.local: 
@@ -55,8 +55,9 @@ class user_api(object):
                 self.username, self.pw = self.credentials_from_cmd()
         if experimental:
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/MFP_JPD/API/user/xmlrpc' % (self.username, self.pw))
+        elif localhost:
+            self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/user/xmlrpc' % (self.username, self.pw))
         else:
-            #self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/call/xmlrpc' % (username, pw))
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw))
         self.check_connection()
         return
