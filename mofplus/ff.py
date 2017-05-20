@@ -2,15 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import xmlrpclib
-from xmlrpclib import ServerProxy
 import molsys.stow as stow
-import sys
 import string
 import logging
-import os
 import molsys
-from assign_FF import sort_bond, sort_angle, sort_dihedral, sort_oop
-import getpass
 from decorator import faulthandler, download, nolocal
 import admin
 import user
@@ -204,7 +199,7 @@ class FF_api(admin.admin_api):
             dic[i[0]] = i[1:]
         return dic
 
-    @nolocal
+    #@nolocal
     def set_FFref(self, name, hdf5path, mfpxpath, comment=""):
         """
         Method to create a new entry in the FFref table and to upload a file with
@@ -299,6 +294,17 @@ class FF_api(admin.admin_api):
             af = aftype(l[0], l[1])
             dic[l[2]].append(af)
         return dic
+    
+    def set_special_atype(self, at, ft, stype = "linear"):
+        """
+        Method to assign an attribute to an aftype
+        :Parameters:
+            - at (str): atype
+            - ft (str): fragtype
+            - stype (str,optional): attribute, defaults to linear
+        """
+        assert type(at) == type(ft) == type(stype) == str
+        self.mfp.set_special_atype(at,ft,stype)
 
     def get_parameter_history(self, id):
         assert type(id) == int
