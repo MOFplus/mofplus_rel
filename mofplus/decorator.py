@@ -18,11 +18,9 @@ def download(dtype, binary = False):
                 if "mol" in kwargs.keys():
                     if kwargs["mol"] == True:
                         if dtype == "topology":
-                            m = molsys.topo()
+                            return molsys.topo.fromString(lines)
                         else:
-                            m = molsys.mol()
-                        m.fromString(lines)
-                        return m
+                            return molsys.mol.fromString(lines)
                 if binary == False:
                     f=open(str(args[1])+'.mfpx', 'w')
                     f.write(lines)
