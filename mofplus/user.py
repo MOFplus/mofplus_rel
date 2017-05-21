@@ -3,7 +3,6 @@
 
 import xmlrpclib
 from xmlrpclib import ServerProxy
-import sys
 import logging
 import os
 import molsys
@@ -22,19 +21,21 @@ logger.addHandler(shandler)
 class user_api(object):
     """
     Via the user_api class the API routines of MOFplus which are accessable for normal users can be used.
-    The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively.
+    The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively or
+    can be stated in ~/.mofplusrc.
 
-    :Attrributes[MaÈ[MaÇ[MaÇ:
+    :Attrributes:
         - mfp (obj)     : ServerProxy XMLRPCLIB object holding the connection to MOF+
         - username (str): Username on MOF+
-        - pw (str)      : Pa[MaÇ[MaÇssword corresponding to the username
+        - pw (str)      : Password corresponding to the username
 
     :Args:
-        - experimental (bool, option[MaÆal): Use to connect to experimental DB, defaults to False
+        - local        (bool, optional): Use to connect directly to a MySQL server, defaults to False
+        - localhost    (bool, optional): Use to connect to an MFP server running on localhost, defaults to False
         - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
-    def __init__(self,experimental=False, banner = False, local = False, localhost = False):
+    def __init__(self, banner = False, local = False, localhost = False):
         self.local = local
         if banner: self.print_banner()
         if self.local: 
@@ -53,9 +54,7 @@ class user_api(object):
                 logger.error("Environment credentials not found!")
                 logger.info("Get credentials from prompt")
                 self.username, self.pw = self.credentials_from_cmd()
-        if experimental:
-            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/MFP_JPD/API/user/xmlrpc' % (self.username, self.pw))
-        elif localhost:
+        if localhost:
             self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/user/xmlrpc' % (self.username, self.pw))
         else:
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw))
@@ -120,6 +119,7 @@ class user_api(object):
     @download('topology')
     def get_net(self,netname, mol = False):
         """Downloads a topology in mfpx file format
+        
         :Parameters:
             -netname (str): name of the net
             -mol    (bool,optional): if true a mol object is returned, if false
@@ -140,6 +140,7 @@ class user_api(object):
     @download('building block')
     def get_bb(self,bbname, mol = False):
         """Downloads a bb in mfpx file format
+        
         :Parameters:
             -bbname (str): name of the bb
             -mol    (bool,optional): if true a mol object is returned, if false
@@ -151,6 +152,7 @@ class user_api(object):
     @download('MOF')
     def get_mof_structure_by_id(self,strucid, mol = False):
         """Downloads a MOF structure in mfpx file format
+        
         :Parameters:
             -strucid (str): id of the MOF structure in the DB
             -mol    (bool,optional): if true a mol object is returned, if false
@@ -162,6 +164,7 @@ class user_api(object):
     def get_cs(self,name):
         """
         Returns the coordinations sequences of a topology as a list of lists.
+        
         :Parameters:
             -name (str): Name of the topology
             
@@ -171,6 +174,7 @@ class user_api(object):
     def get_vs(self,name):
         """
         Returns the vertex symbol of a topology as a list of strings
+        
         :Parameters:
             -name (str): Name of the topology
         """
@@ -180,6 +184,7 @@ class user_api(object):
         """
         Searches nets with a given coordination sequences and given vertex symbols and returns
         the corresponding netnames as a list of strings.
+        
         :Parameters:
             -cs (list): List of the coordination sequences
             -vs (list): List of the vertex symbols

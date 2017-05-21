@@ -3,23 +3,21 @@
 
 import xmlrpclib
 from xmlrpclib import ServerProxy
-import sys
 import logging
-import os
 import molsys
-import getpass
 from decorator import faulthandler, download, nolocal
-import user
+import ff
 logger = logging.getLogger("mofplus")
 
 
-class admin_api(user.user_api):
+class admin_api(ff.FF_api):
 
     """
     Via the admin_api class the API routines of MOFplus which are accessable for normal users and for admin users
-    can be used. Class is inherited from the user_api class.
+    can be used. Class is inherited from the ff_api class.
     
-    The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively.
+    The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively or
+    can be stated in ~/.mofplusrc.
 
     :Attrributes:
         - mfp (obj)     : ServerProxy XMLRPCLIB object holding the connection to MOF+
@@ -27,17 +25,14 @@ class admin_api(user.user_api):
         - pw (str)      : Password corresponding to the username
 
     :Args:
-        - experimental (bool, optional): Use to connect to experimental DB, defaults to False
+        - localhost    (bool, optional): Use to connect to an MFP server running on localhost, defaults to False
         - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
-    def __init__(self, experimental = False, banner = False, local = False, localhost = False):
-        user.user_api.__init__(self,experimental, banner, local)
-        if local: return
-        if experimental:
-	    self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/MFP_JPD/API/admin/xmlrpc' % (self.username, self.pw))
-        elif localhost:
-	    self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/admin/xmlrpc' % (self.username, self.pw))
+    def __init__(self, banner = False, localhost = False):
+        ff.FF_api.__init__(self, banner=banner, localhost = localhost)
+        if localhost:
+	        self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/admin/xmlrpc' % (self.username, self.pw))
         else:
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/admin/xmlrpc' % (self.username, self.pw))
         self.check_adminconnection()
@@ -243,3 +238,128 @@ class admin_api(user.user_api):
         """
         assert type(faid) == int
         self.mfp.fa_finish(faid)
+    
+    @faulthandler
+    def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
+        """
+        Method to upload parameter sets in the DB
+        :Parameters:
+            - FF (str): Name of the FF the parameters belong to
+            - atypes (str): list of atypes belonging to the term
+            - ptype (str): type of requested term
+            - potential (str): type of requested potential
+            - params (list): parameterset
+            - fitsystem (str): name of the FFfit/reference system the
+              parameterset is obtained from
+        """
+        assert type(FF) == type(ptype) == type(potential) == type(atypes) == str
+        assert type(params) == list
+        atypes, fragments = self.format_atypes(atypes,ptype, potential)
+        rl = {i[0]:i[1] for i in allowed_potentials[ptype]}[potential]
+        if len(params) != rl:
+            raise ValueError("Required lenght for %s %s is %i" %(ptype,potential,rl))
+        ret = self.mfp.set_params(FF, atypes, fragments, ptype, potential, fitsystem,params)
+        return ret
+    
+    @faulthandler
+    def set_params_interactive(self, FF, atypes, ptype, potential, fitsystem, params):
+        """
+        Method to upload parameter sets in the DB interactively
+        :Parameters:
+            - FF (str): Name of the FF the parameters belong to
+            - atypes (str): list of atypes belonging to the term
+            - ptype (str): type of requested term
+            - potential (str): type of requested potential
+            - params (list): parameterset
+            - fitsystem (str): name of the FFfit/reference system the
+              parameterset is obtained from
+        """
+        stop = False
+        while not stop:
+            print "--------upload-------"
+            print "FF      : %s" % FF
+            print "atypes  : " +len(atypes)*"%s " % tuple(atypes)
+            print "type    : %s" % ptype
+            print "pot     : %s" % potential
+            print "ref     : %s" % fitsystem
+            print "params  : ",params
+            print "--------options---------"
+            print "[s]: skip"
+            print "[y]: write to db"
+            print "[a]: modify atypes"
+            print "[t]: modify type"
+            print "[p]: modify pot"
+            print "[r]: modify ref"
+            x = raw_input("Your choice:  ")
+            if x == "s":
+                stop = True
+                print "Entry will be skipped"
+            elif x == "y":
+                ret = self.set_params(FF, string.join(atypes,":"), ptype, potential, fitsystem, params)
+                print ret
+                if type(ret) != int:
+                    "Error occurred during upload, try again!"
+                else:
+                    print "Entry is written to db"
+                    stop = True
+            elif x == "a":
+                inp = raw_input("Give modified atypes:  ")
+                atypes = string.split(inp)
+            elif x == "t":
+                ptype = raw_input("Give modified type:  ")
+            elif x == "p":
+                potential = raw_input("Give modified pot:  ")
+            elif x == "r":
+                fitsystem = raw_input("Give modified ref:  ")
+    #@nolocal
+    def set_FFref(self, name, hdf5path, mfpxpath, comment=""):
+        """
+        Method to create a new entry in the FFref table and to upload a file with
+        reference information in the hdf5 file format.
+        :Parameters:
+            - name (str): name of the entry in the DB
+            - path (str): path to the hdf5 reference file
+        """
+        assert type(name) == type(hdf5path) == type(mfpxpath) == type(comment) == str
+        with open(hdf5path, "rb") as handle:
+            binary = xmlrpclib.Binary(handle.read())
+        with open(mfpxpath, "r") as handle:
+            mfpx = handle.read()
+        self.mfp.set_FFref(name, binary, mfpx, comment)
+        return
+    
+    #@nolocal
+    def set_FFref_graph(self,name, mfpxpath):
+        with open(mfpxpath, "r") as handle:
+            mfpx = handle.read()
+        self.mfp.set_FFref_graph(name,mfpx)
+        return
+    
+    @nolocal
+    def set_FFfrag(self,name,path,comment=""):
+        """
+        Method to create a new entry in the FFfrags table.
+        :Parameters:
+            - name (str): name of the entry in the db
+            - path (str): path to the mfpx file of the fragment
+            - comment (str): comment
+        """
+        assert type(name) == type(path) == type(comment) == str
+        with open(path, "r") as handle:
+            lines = handle.read()
+            m = molsys.mol()
+            m.fromString(lines, ftype = "mfpx")
+            prio = m.natoms-m.elems.count("x")
+        self.mfp.set_FFfrag(name, lines, prio, comment)
+        return
+    
+    def set_special_atype(self, at, ft, stype = "linear"):
+        """
+        Method to assign an attribute to an aftype
+        :Parameters:
+            - at (str): atype
+            - ft (str): fragtype
+            - stype (str,optional): attribute, defaults to linear
+        """
+        assert type(at) == type(ft) == type(stype) == str
+        self.mfp.set_special_atype(at,ft,stype)

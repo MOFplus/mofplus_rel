@@ -14,3 +14,4 @@ build
 *.orig
 molsys.log
 localstore
+doc/_build

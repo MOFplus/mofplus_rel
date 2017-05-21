@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import xmlrpclib
-import molsys.stow as stow
 import string
 import logging
+import sys
 import molsys
 from decorator import faulthandler, download, nolocal
-import admin
 import user
 from molsys.util.aftypes import aftype, aftype_sort, afdict
 
@@ -31,16 +29,37 @@ allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
         "dih": [["harm",2], ["cos3",3], ["cos4",4]],
         "oop": [["harm",2]]}
 
-def tr(*args):
-    return string.join([trd[i] for i in args],":")
 
-class FF_api(admin.admin_api):
-#class FF_api(user.user_api):
 
+class FF_api(user.user_api):   
+    """
+    Via the ff_api class the API routines of MOFplus concerning the retrieval of MOF-FF parameters can be used.
+    The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively or
+    can be stated in ~/.mofplusrc.
+    
+    The FF_api class inherits from the user_api class.
+
+    :Attrributes:
+        - mfp (obj)     : ServerProxy XMLRPCLIB object holding the connection to MOF+
+        - username (str): Username on MOF+
+        - pw (str)      : Password corresponding to the username
+
+    :Args:
+        - local        (bool, optional): Use to connect directly to a MySQL server, defaults to False
+        - localhost    (bool, optional): Use to connect to an MFP server running on localhost, defaults to False
+        - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
+    """
+
+    
     def format_atypes(self, atypes, ptype, potential):
         """
         Helper function to extract fragments out of atypes and to
-        order atypes and fragements in dependence of the ptype.
+        order atypes and fragments in dependence of the ptype. 
+        
+        :Parameters:
+            - atypes (list): list of atom types in the form "atype@fragtype"
+            - ptype (str): ric type
+            - potential (str): potential type
         """
         assert type(ptype) == str
         ### split into tuples of aftypes, then sort and then split into 
@@ -59,6 +78,7 @@ class FF_api(admin.admin_api):
     def get_params_from_ref(self, FF, ref):
         """
         Method to look up all FF parameters that are available for a reference system
+        
         :Parameters:
             - FF (str): Name of the FF the parameters belong to
             - ref (str): Name of the reference system the parameters belong to
@@ -99,6 +119,7 @@ class FF_api(admin.admin_api):
     def get_params(self,FF, atypes, ptype, potential,fitsystem):
         """
         Method to look up parameter sets in the DB
+        
         :Parameters:
             - FF (str): Name of the FF the parameters belong to
             - atypes (list): list of atypes belonging to the term
@@ -111,84 +132,12 @@ class FF_api(admin.admin_api):
         atypes, fragments = self.format_atypes(atypes,ptype, potential)
         params = self.mfp.get_params(FF, atypes, fragments, ptype, potential, fitsystem)
         return params
-
-    @faulthandler
-    def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
-        """
-        Method to upload parameter sets in the DB
-        :Parameters:
-            - FF (str): Name of the FF the parameters belong to
-            - atypes (str): list of atypes belonging to the term
-            - ptype (str): type of requested term
-            - potential (str): type of requested potential
-            - params (list): parameterset
-            - fitsystem (str): name of the FFfit/reference system the
-              parameterset is obtained from
-        """
-        assert type(FF) == type(ptype) == type(potential) == type(atypes) == str
-        assert type(params) == list
-        atypes, fragments = self.format_atypes(atypes,ptype, potential)
-        rl = {i[0]:i[1] for i in allowed_potentials[ptype]}[potential]
-        if len(params) != rl:
-            raise ValueError("Required lenght for %s %s is %i" %(ptype,potential,rl))
-        ret = self.mfp.set_params(FF, atypes, fragments, ptype, potential, fitsystem,params)
-        return ret
-    
-    @faulthandler
-    def set_params_interactive(self, FF, atypes, ptype, potential, fitsystem, params):
-        """
-        Method to upload parameter sets in the DB interactively
-        :Parameters:
-            - FF (str): Name of the FF the parameters belong to
-            - atypes (str): list of atypes belonging to the term
-            - ptype (str): type of requested term
-            - potential (str): type of requested potential
-            - params (list): parameterset
-            - fitsystem (str): name of the FFfit/reference system the
-              parameterset is obtained from
-        """
-        stop = False
-        while not stop:
-            print "--------upload-------"
-            print "FF      : %s" % FF
-            print "atypes  : " +len(atypes)*"%s " % tuple(atypes)
-            print "type    : %s" % ptype
-            print "pot     : %s" % potential
-            print "ref     : %s" % fitsystem
-            print "params  : ",params
-            print "--------options---------"
-            print "[s]: skip"
-            print "[y]: write to db"
-            print "[a]: modify atypes"
-            print "[t]: modify type"
-            print "[p]: modify pot"
-            print "[r]: modify ref"
-            x = raw_input("Your choice:  ")
-            if x == "s":
-                stop = True
-                print "Entry will be skipped"
-            elif x == "y":
-                ret = self.set_params(FF, string.join(atypes,":"), ptype, potential, fitsystem, params)
-                print ret
-                if type(ret) != int:
-                    "Error occurred during upload, try again!"
-                else:
-                    print "Entry is written to db"
-                    stop = True
-            elif x == "a":
-                inp = raw_input("Give modified atypes:  ")
-                atypes = string.split(inp)
-            elif x == "t":
-                ptype = raw_input("Give modified type:  ")
-            elif x == "p":
-                potential = raw_input("Give modified pot:  ")
-            elif x == "r":
-                fitsystem = raw_input("Give modified ref:  ")
-            
+           
 
     def list_FFrefs(self,FF):
         """
         Method to list names and meta properties of all available reference systems in the DB
+        
         :Parameters:
             - FF (str): Name of the FF the reference systems belong to
         """
@@ -199,34 +148,12 @@ class FF_api(admin.admin_api):
             dic[i[0]] = i[1:]
         return dic
 
-    #@nolocal
-    def set_FFref(self, name, hdf5path, mfpxpath, comment=""):
-        """
-        Method to create a new entry in the FFref table and to upload a file with
-        reference information in the hdf5 file format.
-        :Parameters:
-            - name (str): name of the entry in the DB
-            - path (str): path to the hdf5 reference file
-        """
-        assert type(name) == type(hdf5path) == type(mfpxpath) == type(comment) == str
-        with open(hdf5path, "rb") as handle:
-            binary = xmlrpclib.Binary(handle.read())
-        with open(mfpxpath, "r") as handle:
-            mfpx = handle.read()
-        self.mfp.set_FFref(name, binary, mfpx, comment)
-        return
-    
-    #@nolocal
-    def set_FFref_graph(self,name, mfpxpath):
-        with open(mfpxpath, "r") as handle:
-            mfpx = handle.read()
-        self.mfp.set_FFref_graph(name,mfpx)
-        return
 
     @download("FFref")
     def get_FFref_graph(self,name, mol = False):
         """
         Downloads the reference system in mfpx file format
+        
         :Parameters:
             -name (str): name of the reference system
             -mol    (bool,optional): if true a mol object is returned, if false
@@ -240,6 +167,7 @@ class FF_api(admin.admin_api):
     def get_FFref(self,name):
         """
         Method to retrieve an reference file in hdf5 file format from the DB
+        
         :Parameters:
             - name (str): name of the entry in the DB
         """
@@ -247,28 +175,11 @@ class FF_api(admin.admin_api):
         bstr = self.mfp.get_FFref(name).data
         return bstr
 
-    @nolocal
-    def set_FFfrag(self,name,path,comment=""):
-        """
-        Method to create a new entry in the FFfrags table.
-        :Parameters:
-            - name (str): name of the entry in the db
-            - path (str): path to the mfpx file of the fragment
-            - comment (str): comment
-        """
-        assert type(name) == type(path) == type(comment) == str
-        with open(path, "r") as handle:
-            lines = handle.read()
-            m = molsys.mol()
-            m.fromString(lines, ftype = "mfpx")
-            prio = m.natoms-m.elems.count("x")
-        self.mfp.set_FFfrag(name, lines, prio, comment)
-        return
-
     @download("FFfrag")
     def get_FFfrag(self,name, mol = False):
         """
         Downloads a FFfrag in mfpx file format
+        
         :Parameters:
             -name (str): name of the fragment
             -mol    (bool,optional): if true a mol object is returned, if false
@@ -295,33 +206,16 @@ class FF_api(admin.admin_api):
             dic[l[2]].append(af)
         return dic
     
-    def set_special_atype(self, at, ft, stype = "linear"):
-        """
-        Method to assign an attribute to an aftype
-        :Parameters:
-            - at (str): atype
-            - ft (str): fragtype
-            - stype (str,optional): attribute, defaults to linear
-        """
-        assert type(at) == type(ft) == type(stype) == str
-        self.mfp.set_special_atype(at,ft,stype)
-
-    def get_parameter_history(self, id):
-        assert type(id) == int
-        return self.mfp.get_parameter_history(id)
-    
-
 
 if __name__ == '__main__':
-    option = [
-            ['', 't', 'topology', "Name of topology which is downloaded from mofplus"],
-            ['', 'b', 'buildingblock', "Name of building block which is downloaded from mofplus"],
-            ]
-    shellval = stow.main(stow.sys.argv[1:], option)
-    if shellval[0] != '' or shellval[1] != '':
-        api = FF_api(banner=False, experimental = False)
-        if shellval[0] != '': api.get_net(shellval[0], mol = False)
-        if shellval[1] != '': api.get_bb(shellval[1], mol = False)
+    import admin
+    if len(sys.argv) > 1:   
+        if sys.argv[1] == "user":
+            api = user.user_api(banner=True, local =False, localhost = False)
+        elif sys.argv[1] == "admin":
+            api = admin.admin_api(banner=True, localhost = False)
+        elif sys.argv == "ff":
+            api = FF_api(banner=True, localhost = False, local = False)
     else:
-        api = FF_api(banner=True, experimental = False, local =False, localhost = False)
+        api = FF_api(banner=True, localhost = False, local = False)
 
