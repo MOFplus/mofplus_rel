@@ -335,7 +335,6 @@ class admin_api(ff.FF_api):
         self.mfp.set_FFref_graph(name,mfpx)
         return
     
-    @nolocal
     def set_FFfrag(self,name,path,comment=""):
         """
         Method to create a new entry in the FFfrags table.
@@ -345,11 +344,8 @@ class admin_api(ff.FF_api):
             - comment (str): comment
         """
         assert type(name) == type(path) == type(comment) == str
-        with open(path, "r") as handle:
-            lines = handle.read()
-            m = molsys.mol()
-            m.fromString(lines, ftype = "mfpx")
-            prio = m.natoms-m.elems.count("x")
+        m = molsys.mol.fromFile(path)
+        prio = m.natoms-m.elems.count("x")
         self.mfp.set_FFfrag(name, lines, prio, comment)
         return
     
