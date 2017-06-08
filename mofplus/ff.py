@@ -217,7 +217,7 @@ class FF_api(user.user_api):
             - atfix (dict): dictionary containing special atypes information
             - comment (string): comment
         """
-        self.mfp.create_fit(FF, ref, azone, atfix, comment)
+        return self.mfp.create_fit(FF, ref, azone, atfix, comment)
 
     def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
         """

@@ -57,7 +57,7 @@ class user_api(object):
         if localhost:
             self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/user/xmlrpc' % (self.username, self.pw))
         else:
-            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw))
+            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw), allow_none = True)
         self.check_connection()
         return
 
