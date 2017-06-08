@@ -4,8 +4,7 @@
 import string
 import logging
 import sys
-import molsys
-from decorator import faulthandler, download, nolocal
+from decorator import faulthandler, download
 import user
 from molsys.util.aftypes import aftype, aftype_sort, afdict
 
@@ -139,7 +138,8 @@ class FF_api(user.user_api):
         Method to list names and meta properties of all available reference systems in the DB
         
         :Parameters:
-            - FF (str): Name of the FF the reference systems belong to
+            - FF (str): Name of the FF the reference systems belong to, give "*" in order to 
+            get all available references independent from the FF
         """
         assert type(FF) == str
         res = self.mfp.list_FFrefs(FF)
@@ -205,7 +205,90 @@ class FF_api(user.user_api):
             af = aftype(l[0], l[1])
             dic[l[2]].append(af)
         return dic
+
+    def create_fit(self, FF, ref, azone=None, atfix = None, comment = ""):
+        """
+        Method to create a FFfit entry in the database which is necessary
+        for storing parameters for a predefined FF
+        :Parameters:
+            - FF (str): name of the FF
+            - ref (str): name of the reference system
+            - azone (list): list of integers describing the active zone of the fit
+            - atfix (dict): dictionary containing special atypes information
+            - comment (string): comment
+        """
+        self.mfp.create_fit(FF, ref, azone, atfix, comment)
+
+    def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
+        """
+        Method to upload parameter sets in the DB
+        :Parameters:
+            - FF (str): Name of the FF the parameters belong to
+            - atypes (str): list of atypes belonging to the term
+            - ptype (str): type of requested term
+            - potential (str): type of requested potential
+            - params (list): parameterset
+            - fitsystem (str): name of the FFfit/reference system the
+              parameterset is obtained from
+        """
+        assert type(FF) == type(ptype) == type(potential) == type(atypes) == str
+        assert type(params) == list
+        atypes, fragments = self.format_atypes(atypes,ptype, potential)
+        rl = {i[0]:i[1] for i in allowed_potentials[ptype]}[potential]
+        if len(params) != rl:
+            raise ValueError("Required lenght for %s %s is %i" %(ptype,potential,rl))
+        ret = self.mfp.set_params(FF, atypes, fragments, ptype, potential, fitsystem,params)
+        return ret
     
+    def set_params_interactive(self, FF, atypes, ptype, potential, fitsystem, params):
+        """
+        Method to upload parameter sets in the DB interactively
+        :Parameters:
+            - FF (str): Name of the FF the parameters belong to
+            - atypes (str): list of atypes belonging to the term
+            - ptype (str): type of requested term
+            - potential (str): type of requested potential
+            - params (list): parameterset
+            - fitsystem (str): name of the FFfit/reference system the
+              parameterset is obtained from
+        """
+        stop = False
+        while not stop:
+            print "--------upload-------"
+            print "FF      : %s" % FF
+            print "atypes  : " +len(atypes)*"%s " % tuple(atypes)
+            print "type    : %s" % ptype
+            print "pot     : %s" % potential
+            print "ref     : %s" % fitsystem
+            print "params  : ",params
+            print "--------options---------"
+            print "[s]: skip"
+            print "[y]: write to db"
+            print "[a]: modify atypes"
+            print "[t]: modify type"
+            print "[p]: modify pot"
+            print "[r]: modify ref"
+            x = raw_input("Your choice:  ")
+            if x == "s":
+                stop = True
+                print "Entry will be skipped"
+            elif x == "y":
+                ret = self.set_params(FF, string.join(atypes,":"), ptype, potential, fitsystem, params)
+                print ret
+                if type(ret) != int:
+                    "Error occurred during upload, try again!"
+                else:
+                    print "Entry is written to db"
+                    stop = True
+            elif x == "a":
+                inp = raw_input("Give modified atypes:  ")
+                atypes = string.split(inp)
+            elif x == "t":
+                ptype = raw_input("Give modified type:  ")
+            elif x == "p":
+                potential = raw_input("Give modified pot:  ")
+            elif x == "r":
+                fitsystem = raw_input("Give modified ref:  ")
 
 if __name__ == '__main__':
     import admin
@@ -218,4 +301,6 @@ if __name__ == '__main__':
             api = FF_api(banner=True, localhost = False, local = False)
     else:
         api = FF_api(banner=True, localhost = False, local = False)
+
+
 

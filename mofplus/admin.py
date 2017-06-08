@@ -4,6 +4,7 @@
 import xmlrpclib
 from xmlrpclib import ServerProxy
 import logging
+import string
 import molsys
 from decorator import faulthandler, download, nolocal
 import ff
@@ -32,9 +33,9 @@ class admin_api(ff.FF_api):
     def __init__(self, banner = False, localhost = False):
         ff.FF_api.__init__(self, banner=banner, localhost = localhost)
         if localhost:
-	        self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/admin/xmlrpc' % (self.username, self.pw))
+            self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/admin/xmlrpc' % (self.username, self.pw))
         else:
-            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/admin/xmlrpc' % (self.username, self.pw))
+            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/admin/xmlrpc' % (self.username, self.pw), allow_none = True)
         self.check_adminconnection()
 
     def check_adminconnection(self):
@@ -55,7 +56,6 @@ class admin_api(ff.FF_api):
             exit()
         return
     
-    @nolocal
     def delete_net(self, name):
         """
         Deletes a net from the db
@@ -65,7 +65,6 @@ class admin_api(ff.FF_api):
         assert type(name) == str
         self.mfp.delete_net(name)
    
-    @nolocal
     def add_bb_penalties(self,data):
         """
         Method to adds penalties to building blocks
@@ -74,7 +73,6 @@ class admin_api(ff.FF_api):
         print retstring
         return
 
-    @nolocal
     def upload_weaver_run(self, fwid, fname):
         """
         Method to upload the results of a weaver run to the db
@@ -89,7 +87,6 @@ class admin_api(ff.FF_api):
         a = self.mfp.upload_weaver_run(data)
         return
 
-    @nolocal
     def upload_mof_structure_by_id(self, fname, strucid):
         """
         Method to upload a structure file to the DB
@@ -104,7 +101,6 @@ class admin_api(ff.FF_api):
         self.mfp.upload_mof_structure_by_id(data)
         return
 
-    @nolocal
     def upload_topo_file_by_name(self, fname, name):
         """
         Method to upload a topo file to the DB
@@ -120,12 +116,10 @@ class admin_api(ff.FF_api):
         return
 
     ### method in principle obsolete
-    @nolocal
     def upload_pa_run(self,data):
         ret = self.mfp.upload_pa_run(data)
         return
 
-    @nolocal
     def upload_bbfile_by_name(self, fname, name):
         """
         Method to upload a bb file to the DB
@@ -140,7 +134,6 @@ class admin_api(ff.FF_api):
         self.mfp.upload_bbfile_by_name(data)
         return
 
-    @nolocal
     def insert_bb(self,name, fname, chemtype, frag = False):
         """
         Method to create a new entry in the bb table.
@@ -157,7 +150,6 @@ class admin_api(ff.FF_api):
         self.mfp.insert_bb(data)
         return
 
-    @nolocal
     def set_cs(self, name, cs):
         """
         Method to set the cs of a topology.
@@ -171,7 +163,6 @@ class admin_api(ff.FF_api):
         self.mfp.set_cs(data)
         return
     
-    @nolocal
     def set_vs(self, name, vs):
         """
         Method to set the vs of a topology.
@@ -185,7 +176,6 @@ class admin_api(ff.FF_api):
         self.mfp.set_vs(data)
         return
     
-    @nolocal
     def connect_nets(self, pnet, cnet, pattern):
         """
         Method to create relationchips between nets in the DB
@@ -201,7 +191,6 @@ class admin_api(ff.FF_api):
         self.mfp.connect_nets(pnet,cnet,pattern)
         return
 
-    @nolocal
     def add_skal_property(self, strucid, ptype, prop):
         """
         Method to add a skalar property to a structure
@@ -215,7 +204,6 @@ class admin_api(ff.FF_api):
         self.mfp.add_skal_property(strucid, ptype, prop)
         return
 
-    @nolocal
     def add_xy_property(self,strucid,ptype,data):
         """
         Method to add a dataset as property to the DB
@@ -229,7 +217,6 @@ class admin_api(ff.FF_api):
         self.mfp.add_xy_property(strucid, ptype,data)
         return
 
-    @nolocal
     def fa_finish(self,faid):
         """
         Method to register a fireanalyzer run as finished
@@ -239,79 +226,7 @@ class admin_api(ff.FF_api):
         assert type(faid) == int
         self.mfp.fa_finish(faid)
     
-    @faulthandler
-    def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
-        """
-        Method to upload parameter sets in the DB
-        :Parameters:
-            - FF (str): Name of the FF the parameters belong to
-            - atypes (str): list of atypes belonging to the term
-            - ptype (str): type of requested term
-            - potential (str): type of requested potential
-            - params (list): parameterset
-            - fitsystem (str): name of the FFfit/reference system the
-              parameterset is obtained from
-        """
-        assert type(FF) == type(ptype) == type(potential) == type(atypes) == str
-        assert type(params) == list
-        atypes, fragments = self.format_atypes(atypes,ptype, potential)
-        rl = {i[0]:i[1] for i in allowed_potentials[ptype]}[potential]
-        if len(params) != rl:
-            raise ValueError("Required lenght for %s %s is %i" %(ptype,potential,rl))
-        ret = self.mfp.set_params(FF, atypes, fragments, ptype, potential, fitsystem,params)
-        return ret
     
-    @faulthandler
-    def set_params_interactive(self, FF, atypes, ptype, potential, fitsystem, params):
-        """
-        Method to upload parameter sets in the DB interactively
-        :Parameters:
-            - FF (str): Name of the FF the parameters belong to
-            - atypes (str): list of atypes belonging to the term
-            - ptype (str): type of requested term
-            - potential (str): type of requested potential
-            - params (list): parameterset
-            - fitsystem (str): name of the FFfit/reference system the
-              parameterset is obtained from
-        """
-        stop = False
-        while not stop:
-            print "--------upload-------"
-            print "FF      : %s" % FF
-            print "atypes  : " +len(atypes)*"%s " % tuple(atypes)
-            print "type    : %s" % ptype
-            print "pot     : %s" % potential
-            print "ref     : %s" % fitsystem
-            print "params  : ",params
-            print "--------options---------"
-            print "[s]: skip"
-            print "[y]: write to db"
-            print "[a]: modify atypes"
-            print "[t]: modify type"
-            print "[p]: modify pot"
-            print "[r]: modify ref"
-            x = raw_input("Your choice:  ")
-            if x == "s":
-                stop = True
-                print "Entry will be skipped"
-            elif x == "y":
-                ret = self.set_params(FF, string.join(atypes,":"), ptype, potential, fitsystem, params)
-                print ret
-                if type(ret) != int:
-                    "Error occurred during upload, try again!"
-                else:
-                    print "Entry is written to db"
-                    stop = True
-            elif x == "a":
-                inp = raw_input("Give modified atypes:  ")
-                atypes = string.split(inp)
-            elif x == "t":
-                ptype = raw_input("Give modified type:  ")
-            elif x == "p":
-                potential = raw_input("Give modified pot:  ")
-            elif x == "r":
-                fitsystem = raw_input("Give modified ref:  ")
-    #@nolocal
     def set_FFref(self, name, hdf5path, mfpxpath, comment=""):
         """
         Method to create a new entry in the FFref table and to upload a file with
@@ -328,7 +243,6 @@ class admin_api(ff.FF_api):
         self.mfp.set_FFref(name, binary, mfpx, comment)
         return
     
-    #@nolocal
     def set_FFref_graph(self,name, mfpxpath):
         with open(mfpxpath, "r") as handle:
             mfpx = handle.read()
@@ -344,6 +258,9 @@ class admin_api(ff.FF_api):
             - comment (str): comment
         """
         assert type(name) == type(path) == type(comment) == str
+        with open(path, "r") as f:
+            lines = f.read()
+            m = molsys.mol.fromString(lines)
         m = molsys.mol.fromFile(path)
         prio = m.natoms-m.elems.count("x")
         self.mfp.set_FFfrag(name, lines, prio, comment)
@@ -359,3 +276,5 @@ class admin_api(ff.FF_api):
         """
         assert type(at) == type(ft) == type(stype) == str
         self.mfp.set_special_atype(at,ft,stype)
+        
+        
