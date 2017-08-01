@@ -46,12 +46,13 @@ class user_api(object):
             self.username, self.pw = self.credentials_from_rc()
         except IOError:
             try:
-                logger.error(".mofplusrc not found!")
+                import pdb; pdb.set_trace()
+                logger.warning(".mofplusrc not found!")
                 logger.info("Get credentials from environment variables")
                 self.username = os.environ['MFPUSER']
                 self.pw       = os.environ['MFPPW']
             except KeyError:
-                logger.error("Environment credentials not found!")
+                logger.warning("Environment credentials not found!")
                 logger.info("Get credentials from prompt")
                 self.username, self.pw = self.credentials_from_cmd()
         if localhost:
