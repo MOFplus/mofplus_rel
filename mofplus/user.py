@@ -199,3 +199,13 @@ class user_api(object):
                 if n.find('-c') != -1: rl.append(n)
             for i in rl: nets.remove(i)
         return nets
+
+    @download('topology')
+    def get_scaledtopo(id):
+        lines = self.mfp.get_scaled_topo(id)
+        return lines
+    
+    @download('orients')
+    def get_orients(id):
+        lines = self.mfp.get_orients(id)
+        return lines

@@ -139,7 +139,7 @@ class FF_api(user.user_api):
         
         :Parameters:
             - FF (str): Name of the FF the reference systems belong to, give "*" in order to 
-            get all available references independent from the FF
+                get all available references independent from the FF
         """
         assert type(FF) == str
         res = self.mfp.list_FFrefs(FF)
@@ -231,7 +231,7 @@ class FF_api(user.user_api):
             - fitsystem (str): name of the FFfit/reference system the
               parameterset is obtained from
         """
-        assert type(FF) == type(ptype) == type(potential) == type(atypes) == str
+        #assert type(FF) == type(ptype) == type(potential) == type(atypes) == str
         assert type(params) == list
         atypes, fragments = self.format_atypes(atypes,ptype, potential)
         rl = {i[0]:i[1] for i in allowed_potentials[ptype]}[potential]

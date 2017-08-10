@@ -276,5 +276,32 @@ class admin_api(ff.FF_api):
         """
         assert type(at) == type(ft) == type(stype) == str
         self.mfp.set_special_atype(at,ft,stype)
-        
+        return
+
+    def set_orients(self, scid, path):
+        """
+        Method to upload an orients file
+        :Parameters:
+            - scid: id of the supercell entry
+            - path: path to the orientsfile
+        """
+        with open(path, "r") as f:
+            lines = f.read()
+        self.mfp.set_orients(scid, path)
+        return
+
+    def set_scaledtopo(self, scid, path):
+        """
+        Method to upload a scaled topo file
+        :Parameters:
+            - scid: id of the supercell entry
+            - path: path ot the scaled topo file
+        """
+        with open(path, "r") as f:
+            lines = f.read()
+        self.mfp.set_scaledtopo(scid,path)
+        return
+
+       
+       
         

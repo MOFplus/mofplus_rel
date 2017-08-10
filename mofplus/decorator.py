@@ -22,7 +22,10 @@ def download(dtype, binary = False):
                         else:
                             return molsys.mol.fromString(lines)
                 if binary == False:
-                    f=open(str(args[1])+'.mfpx', 'w')
+                    if dtype == "orients":
+                        f=open(str(args[1])+'.orients', 'w')
+                    else:
+                        f=open(str(args[1])+'.mfpx', 'w')
                     f.write(lines)
                     f.close()
                 else:
