@@ -82,7 +82,6 @@ class FF_api(user.user_api):
             - FF (str): Name of the FF the parameters belong to
             - ref (str): Name of the reference system the parameters belong to
         """
-        assert type(FF) == type(ref) == str
         paramsets = self.mfp.get_params_from_ref(FF,ref)
         paramdict = {"onebody":{"charge":afdict(),"vdw":afdict(),"equil":afdict()},
                 "twobody":{"bnd":afdict(),"chargemod":afdict(), "vdwpr":afdict()},
@@ -141,7 +140,6 @@ class FF_api(user.user_api):
             - FF (str): Name of the FF the reference systems belong to, give "*" in order to 
                 get all available references independent from the FF
         """
-        assert type(FF) == str
         res = self.mfp.list_FFrefs(FF)
         dic = {}
         for i in res:

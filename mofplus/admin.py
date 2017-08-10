@@ -287,7 +287,7 @@ class admin_api(ff.FF_api):
         """
         with open(path, "r") as f:
             lines = f.read()
-        self.mfp.set_orients(scid, path)
+        self.mfp.set_orients(scid, lines)
         return
 
     def set_scaledtopo(self, scid, path):
@@ -299,7 +299,7 @@ class admin_api(ff.FF_api):
         """
         with open(path, "r") as f:
             lines = f.read()
-        self.mfp.set_scaledtopo(scid,path)
+        self.mfp.set_scaledtopo(scid,lines)
         return
 
        
