@@ -201,11 +201,11 @@ class user_api(object):
         return nets
 
     @download('topology')
-    def get_scaledtopo(id):
-        lines = self.mfp.get_scaled_topo(id)
+    def get_scaledtopo(self,id):
+        lines = self.mfp.get_scaledtopo(id)
         return lines
     
     @download('orients')
-    def get_orients(id):
+    def get_orients(self,id):
         lines = self.mfp.get_orients(id)
         return lines
