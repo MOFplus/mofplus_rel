@@ -73,7 +73,7 @@ class admin_api(ff.FF_api):
         print retstring
         return
 
-    def upload_weaver_run(self, fwid, fname):
+    def upload_weaver_run(self, fwid, scid, fname, energy):
         """
         Method to upload the results of a weaver run to the db
         :Parameters:
@@ -82,6 +82,8 @@ class admin_api(ff.FF_api):
         """
         data = {}
         data['fwid'] = str(fwid)
+        data["scid"] = scid
+        data["energy"] = energy
         f = open(fname, 'r')
         data['fmfpx'] = f.read()
         a = self.mfp.upload_weaver_run(data)
