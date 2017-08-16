@@ -103,6 +103,16 @@ class admin_api(ff.FF_api):
         self.mfp.upload_mof_structure_by_id(data)
         return
 
+    def set_structure(scid, name, path, energy, ff):
+        with open(path , "r") as f:
+            fstring = f.read
+        self.mfp.set_structure(scid, name, fstring, energy, ff)
+        return
+
+    def RTAfinish(jobid):
+        self.mfp.RTAfinish(int(jobid))
+        return
+
     def upload_topo_file_by_name(self, fname, name):
         """
         Method to upload a topo file to the DB
