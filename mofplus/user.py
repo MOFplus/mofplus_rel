@@ -202,10 +202,22 @@ class user_api(object):
 
     @download('topology')
     def get_scaledtopo(self,id):
+        """
+        Gets the scaled topo file for a given id supercell id.
+        :Parameters:
+            - id(int): if of the supercell entry in the db for which
+            the scaledtopo is requested
+        """
         lines = self.mfp.get_scaledtopo(id)
         return lines
     
     @download('orients')
     def get_orients(self,id):
+        """
+        Gets the orients file for a given id supercell id.
+        :Parameters:
+            - id(int): if of the supercell entry in the db for which
+            the orients file is requested
+        """
         lines = self.mfp.get_orients(id)
         return lines

@@ -104,12 +104,29 @@ class admin_api(ff.FF_api):
         return
 
     def set_structure(self,scid, name, path, ff, properties = {}):
+        """
+        Sets the structures for a given supercell db entry id.
+        :Parameters:
+            - scid(int): id of the supercell entry in the db
+            - name(str): name of the structure
+            - path(str): path to the mfpx file of the structure
+            - ff(str): FF/LOT on which the structure was computed
+            - properties(dict, optional): dictionary of properties
+            of the structures, defaults to {}
+
+        """
         with open(path , "r") as f:
             fstring = f.read()
         self.mfp.set_structure(scid, name, fstring, ff, properties)
         return
 
     def RTAfinish(self,jobid):
+        """
+        Method to mark an RTA job in the mofplus db as finished
+        
+        :Parameters:
+            -jobid(int): id of the job in the db
+        """
         self.mfp.RTAfinish(int(jobid))
         return
 
@@ -125,11 +142,6 @@ class admin_api(ff.FF_api):
         data['name'] = name
         data['fmfpx'] = f.read()
         self.mfp.upload_topo_file_by_name(data)
-        return
-
-    ### method in principle obsolete
-    def upload_pa_run(self,data):
-        ret = self.mfp.upload_pa_run(data)
         return
 
     def upload_bbfile_by_name(self, fname, name):
@@ -314,6 +326,3 @@ class admin_api(ff.FF_api):
         self.mfp.set_scaledtopo(scid,lines)
         return
 
-       
-       
-        
