@@ -103,13 +103,13 @@ class admin_api(ff.FF_api):
         self.mfp.upload_mof_structure_by_id(data)
         return
 
-    def set_structure(scid, name, path, energy, ff):
+    def set_structure(self,scid, name, path, ff, properties = {}):
         with open(path , "r") as f:
-            fstring = f.read
-        self.mfp.set_structure(scid, name, fstring, energy, ff)
+            fstring = f.read()
+        self.mfp.set_structure(scid, name, fstring, ff, properties)
         return
 
-    def RTAfinish(jobid):
+    def RTAfinish(self,jobid):
         self.mfp.RTAfinish(int(jobid))
         return
 
