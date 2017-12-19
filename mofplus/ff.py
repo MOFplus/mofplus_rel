@@ -292,13 +292,13 @@ if __name__ == '__main__':
     import admin
     if len(sys.argv) > 1:   
         if sys.argv[1] == "user":
-            api = user.user_api(banner=True, local =False, localhost = False)
+            api = user.user_api(banner=True)
         elif sys.argv[1] == "admin":
-            api = admin.admin_api(banner=True, localhost = False)
+            api = admin.admin_api(banner=True)
         elif sys.argv == "ff":
-            api = FF_api(banner=True, localhost = False, local = False)
+            api = FF_api(banner=True)
     else:
-        api = FF_api(banner=True, localhost = False, local = False)
+        api = FF_api(banner=True)
 
 
 

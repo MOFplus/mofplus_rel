@@ -35,7 +35,7 @@ class user_api(object):
         - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
-    def __init__(self, banner = False, local = False, localhost = False):
+    def __init__(self, banner = False, local = False):
         self.local = local
         if banner: self.print_banner()
         if self.local: 
@@ -54,9 +54,16 @@ class user_api(object):
                 logger.warning("Environment credentials not found!")
                 logger.info("Get credentials from prompt")
                 self.username, self.pw = self.credentials_from_cmd()
-        if localhost:
+        ### read from environment variables to which DB should be connected, default is the global www.mofplus.org
+        if 'MFPDB' in os.environ:
+            self.location = os.environ['MFPDB']
+        else:
+            self.location = 'GLOBAL'
+        if self.location == 'LOCAL':
+            logger.info('Trying to connect to local MOFplus API')
             self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/user/xmlrpc' % (self.username, self.pw))
         else:
+            logger.info('Trying to connect to global MOFplus API')
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw), allow_none = True)
         self.check_connection()
         return
@@ -99,7 +106,7 @@ class user_api(object):
             logger.info("Connection to user API established")
         except xmlrpclib.ProtocolError:
             logger.error("Not possible to connect to MOF+. Check your credentials")
-            exit()
+            raise IOError
         return
 
     def print_banner(self):
