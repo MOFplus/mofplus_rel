@@ -38,15 +38,15 @@ class FF_api(user.user_api):
     
     The FF_api class inherits from the user_api class.
 
-    :Attrributes:
-        - mfp (obj)     : ServerProxy XMLRPCLIB object holding the connection to MOF+
-        - username (str): Username on MOF+
-        - pw (str)      : Password corresponding to the username
+    Attrributes:
+        mfp (obj)     : ServerProxy XMLRPCLIB object holding the connection to MOF+
+        username (str): Username on MOF+
+        pw (str)      : Password corresponding to the username
 
-    :Args:
-        - local        (bool, optional): Use to connect directly to a MySQL server, defaults to False
-        - localhost    (bool, optional): Use to connect to an MFP server running on localhost, defaults to False
-        - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
+    Args:
+        local        (bool, optional): Use to connect directly to a MySQL server, defaults to False
+        localhost    (bool, optional): Use to connect to an MFP server running on localhost, defaults to False
+        banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
     
@@ -55,10 +55,10 @@ class FF_api(user.user_api):
         Helper function to extract fragments out of atypes and to
         order atypes and fragments in dependence of the ptype. 
         
-        :Parameters:
-            - atypes (list): list of atom types in the form "atype@fragtype"
-            - ptype (str): ric type
-            - potential (str): potential type
+        Parameters:
+            atypes (list): list of atom types in the form "atype@fragtype"
+            ptype (str): ric type
+            potential (str): potential type
         """
         assert type(ptype) == str
         ### split into tuples of aftypes, then sort and then split into 
@@ -78,9 +78,9 @@ class FF_api(user.user_api):
         """
         Method to look up all FF parameters that are available for a reference system
         
-        :Parameters:
-            - FF (str): Name of the FF the parameters belong to
-            - ref (str): Name of the reference system the parameters belong to
+        Parameters:
+            FF (str): Name of the FF the parameters belong to
+            ref (str): Name of the reference system the parameters belong to
         """
         paramsets = self.mfp.get_params_from_ref(FF,ref)
         paramdict = {"onebody":{"charge":afdict(),"vdw":afdict(),"equil":afdict()},
@@ -118,13 +118,13 @@ class FF_api(user.user_api):
         """
         Method to look up parameter sets in the DB
         
-        :Parameters:
-            - FF (str): Name of the FF the parameters belong to
-            - atypes (list): list of atypes belonging to the term
-            - ptype (str): type of requested term
-            - potential (str): type of requested potential
-            - fitsystem (str): name of the FFfit/reference system the
-              parameterset is obtained from
+        Parameters:
+            FF (str): Name of the FF the parameters belong to
+            atypes (list): list of atypes belonging to the term
+            ptype (str): type of requested term
+            potential (str): type of requested potential
+            fitsystem (str): name of the FFfit/reference system the
+                parameterset is obtained from
         """
         assert type(FF) == type(ptype) == type(atypes) == type(potential) == str
         atypes, fragments = self.format_atypes(atypes,ptype, potential)
@@ -136,8 +136,8 @@ class FF_api(user.user_api):
         """
         Method to list names and meta properties of all available reference systems in the DB
         
-        :Parameters:
-            - FF (str): Name of the FF the reference systems belong to, give "*" in order to 
+        Parameters:
+            FF (str): Name of the FF the reference systems belong to, give "*" in order to 
                 get all available references independent from the FF
         """
         res = self.mfp.list_FFrefs(FF)
@@ -152,9 +152,9 @@ class FF_api(user.user_api):
         """
         Downloads the reference system in mfpx file format
         
-        :Parameters:
-            -name (str): name of the reference system
-            -mol    (bool,optional): if true a mol object is returned, if false
+        Parameters:
+            name (str): name of the reference system
+            mol    (bool,optional): if true a mol object is returned, if false
                             fragment is written to a file, defaults to False
         """
         assert type(name) == str
@@ -166,8 +166,8 @@ class FF_api(user.user_api):
         """
         Method to retrieve an reference file in hdf5 file format from the DB
         
-        :Parameters:
-            - name (str): name of the entry in the DB
+        Parameters:
+            name (str): name of the entry in the DB
         """
         assert type(name) == str
         bstr = self.mfp.get_FFref(name).data
@@ -178,9 +178,9 @@ class FF_api(user.user_api):
         """
         Downloads a FFfrag in mfpx file format
         
-        :Parameters:
-            -name (str): name of the fragment
-            -mol    (bool,optional): if true a mol object is returned, if false
+        Parameters:
+            name (str): name of the fragment
+            mol    (bool,optional): if true a mol object is returned, if false
                             fragment is written to a file, defaults to False
         """
         assert type(name) == str
@@ -208,26 +208,28 @@ class FF_api(user.user_api):
         """
         Method to create a FFfit entry in the database which is necessary
         for storing parameters for a predefined FF
-        :Parameters:
-            - FF (str): name of the FF
-            - ref (str): name of the reference system
-            - azone (list): list of integers describing the active zone of the fit
-            - atfix (dict): dictionary containing special atypes information
-            - comment (string): comment
+
+        Parameters:
+            FF (str): name of the FF
+            ref (str): name of the reference system
+            azone (list): list of integers describing the active zone of the fit
+            atfix (dict): dictionary containing special atypes information
+            comment (string): comment
         """
         return self.mfp.create_fit(FF, ref, azone, atfix, comment)
 
     def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
         """
         Method to upload parameter sets in the DB
-        :Parameters:
-            - FF (str): Name of the FF the parameters belong to
-            - atypes (str): list of atypes belonging to the term
-            - ptype (str): type of requested term
-            - potential (str): type of requested potential
-            - params (list): parameterset
-            - fitsystem (str): name of the FFfit/reference system the
-              parameterset is obtained from
+
+        Parameters:
+            FF (str): Name of the FF the parameters belong to
+            atypes (str): list of atypes belonging to the term
+            ptype (str): type of requested term
+            potential (str): type of requested potential
+            params (list): parameterset
+            fitsystem (str): name of the FFfit/reference system the
+                parameterset is obtained from
         """
         #assert type(FF) == type(ptype) == type(potential) == type(atypes) == str
         assert type(params) == list
@@ -241,14 +243,14 @@ class FF_api(user.user_api):
     def set_params_interactive(self, FF, atypes, ptype, potential, fitsystem, params):
         """
         Method to upload parameter sets in the DB interactively
-        :Parameters:
-            - FF (str): Name of the FF the parameters belong to
-            - atypes (str): list of atypes belonging to the term
-            - ptype (str): type of requested term
-            - potential (str): type of requested potential
-            - params (list): parameterset
-            - fitsystem (str): name of the FFfit/reference system the
-              parameterset is obtained from
+
+        Parameters:
+            FF (str): Name of the FF the parameters belong to
+            atypes (str): list of atypes belonging to the term
+            ptype (str): type of requested term
+            potential (str): type of requested potential
+            params (list): parameterset
+            fitsystem (str): name of the FFfit/reference system the parameterset is obtained from
         """
         stop = False
         while not stop:
