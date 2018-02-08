@@ -4,6 +4,7 @@
 import xmlrpclib
 import molsys
 import logging
+from functools import wraps
 
 logger = logging.getLogger("mofplus")
 
@@ -12,6 +13,7 @@ def download(dtype, binary = False):
     mfp download decorator
     """
     def download_decorator(func):
+        @wraps(func)
         def inner(*args, **kwargs):
             try:
                 lines = func(*args, **kwargs)

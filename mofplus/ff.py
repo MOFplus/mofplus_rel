@@ -31,21 +31,15 @@ allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
 
 
 class FF_api(user.user_api):   
-    """
+    """API class to query FF dependent data from MOFplus
+
     Via the ff_api class the API routines of MOFplus concerning the retrieval of MOF-FF parameters can be used.
     The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively or
     can be stated in ~/.mofplusrc.
     
     The FF_api class inherits from the user_api class.
 
-    Attrributes:
-        mfp (obj)     : ServerProxy XMLRPCLIB object holding the connection to MOF+
-        username (str): Username on MOF+
-        pw (str)      : Password corresponding to the username
-
     Args:
-        local        (bool, optional): Use to connect directly to a MySQL server, defaults to False
-        localhost    (bool, optional): Use to connect to an MFP server running on localhost, defaults to False
         banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 

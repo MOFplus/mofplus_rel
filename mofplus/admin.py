@@ -20,14 +20,8 @@ class admin_api(ff.FF_api):
     The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively or
     can be stated in ~/.mofplusrc.
 
-    :Attrributes:
-        - mfp (obj)     : ServerProxy XMLRPCLIB object holding the connection to MOF+
-        - username (str): Username on MOF+
-        - pw (str)      : Password corresponding to the username
-
-    :Args:
-        - localhost    (bool, optional): Use to connect to an MFP server running on localhost, defaults to False
-        - banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
+    Args:
+        banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
     def __init__(self, banner = False):
@@ -40,7 +34,10 @@ class admin_api(ff.FF_api):
 
     def check_adminconnection(self):
         """
-        Method to check if the connection to MFP is alive
+        Method to check if the admin connection to MFP is alive
+
+        Raises:
+            IOError: If connection not possible
         """
         try:
             self.mfp.add2(2,2)
@@ -53,14 +50,15 @@ class admin_api(ff.FF_api):
             """
         except xmlrpclib.ProtocolError:
             logger.error("Not possible to connect to MOF+ admin API. Check your credentials")
-            exit()
+            raise IOError
         return
     
     def delete_net(self, name):
         """
         Deletes a net from the db
-        :Parameters:
-            -name (str): name of the net
+
+        Parameters:
+            name (str): name of the net
         """
         assert type(name) == str
         self.mfp.delete_net(name)
@@ -76,9 +74,10 @@ class admin_api(ff.FF_api):
     def upload_weaver_run(self, fwid, scid, fname, energy):
         """
         Method to upload the results of a weaver run to the db
-        :Parameters:
-            -fwid: firework id of the job
-            -fname: filename of the structure file
+
+        Parameters:
+            fwid: firework id of the job
+            fname: filename of the structure file
         """
         data = {}
         data['fwid'] = str(fwid)
@@ -92,9 +91,10 @@ class admin_api(ff.FF_api):
     def upload_mof_structure_by_id(self, fname, strucid):
         """
         Method to upload a structure file to the DB
-        :Parameters:
-            - fname (str): path to the mfpx file
-            - strucid (int): id of the structure in the db
+
+        Parameters:
+            fname (str): path to the mfpx file
+            strucid (int): id of the structure in the db
         """
         data = {}
         f = open(fname, 'r')
@@ -106,12 +106,13 @@ class admin_api(ff.FF_api):
     def set_structure(self,scid, name, path, ff, properties = {}):
         """
         Sets the structures for a given supercell db entry id.
-        :Parameters:
-            - scid(int): id of the supercell entry in the db
-            - name(str): name of the structure
-            - path(str): path to the mfpx file of the structure
-            - ff(str): FF/LOT on which the structure was computed
-            - properties(dict, optional): dictionary of properties
+        
+        Parameters:
+            scid(int): id of the supercell entry in the db
+            name(str): name of the structure
+            path(str): path to the mfpx file of the structure
+            ff(str): FF/LOT on which the structure was computed
+            properties(dict, optional): dictionary of properties
             of the structures, defaults to {}
 
         """
@@ -124,8 +125,8 @@ class admin_api(ff.FF_api):
         """
         Method to mark an RTA job in the mofplus db as finished
         
-        :Parameters:
-            -jobid(int): id of the job in the db
+        Parameters:
+            jobid(int): id of the job in the db
         """
         self.mfp.RTAfinish(int(jobid))
         return
@@ -133,9 +134,10 @@ class admin_api(ff.FF_api):
     def upload_topo_file_by_name(self, fname, name):
         """
         Method to upload a topo file to the DB
-        :Parameters:
-            - fname (str): path to the mfpx file
-            - name (str): name of the topology
+        
+        Parameters:
+            fname (str): path to the mfpx file
+            name (str): name of the topology
         """
         data = {}
         f = open(fname, 'r')
@@ -147,9 +149,10 @@ class admin_api(ff.FF_api):
     def upload_bbfile_by_name(self, fname, name):
         """
         Method to upload a bb file to the DB
-        :Parameters:
-            - fname (str): path to the mfpx file
-            - name (str): name of the bb
+        
+        Parameters:
+            fname (str): path to the mfpx file
+            name (str): name of the bb
         """
         data = {}
         f = open(fname, 'r')
@@ -161,11 +164,12 @@ class admin_api(ff.FF_api):
     def insert_bb(self,name, fname, chemtype, frag = False):
         """
         Method to create a new entry in the bb table.
-        :Parameters:
-            - name (str): name of the bb
-            - fname (str): path to the mfpx file
-            - chemtype (str): string describing the character of the bb
-            - frag (bool, optional): Option to set a BB as fragment, defaults to False
+
+        Parameters:
+            name (str): name of the bb
+            fname (str): path to the mfpx file
+            chemtype (str): string describing the character of the bb
+            frag (bool, optional): Option to set a BB as fragment, defaults to False
         """
         data = {}
         data['name'] = name
@@ -177,9 +181,10 @@ class admin_api(ff.FF_api):
     def set_cs(self, name, cs):
         """
         Method to set the cs of a topology.
-        :Parameters:
-            - name (str): name of the topology
-            - cs (list): list of lists with the cs
+
+        Parameters:
+            name (str): name of the topology
+            cs (list): list of lists with the cs
         """
         data = {}
         data['name'] = name
@@ -190,9 +195,10 @@ class admin_api(ff.FF_api):
     def set_vs(self, name, vs):
         """
         Method to set the vs of a topology.
-        :Parameters:
-            - name (str): name of the topology
-            - vs (list): list with the vs
+
+        Parameters:
+            name (str): name of the topology
+            vs (list): list with the vs
         """
         data = {}
         data['name'] = name
@@ -203,10 +209,11 @@ class admin_api(ff.FF_api):
     def connect_nets(self, pnet, cnet, pattern):
         """
         Method to create relationchips between nets in the DB
-        :Parameters:
-            - pnet (str): name of the parent net
-            - cnet (str): name of the child net
-            - pattern (str): derivation type
+
+        Parameters:
+            pnet (str): name of the parent net
+            cnet (str): name of the child net
+            pattern (str): derivation type
         """
         assert type(pnet) == str
         assert type(cnet) == str
@@ -218,10 +225,11 @@ class admin_api(ff.FF_api):
     def add_skal_property(self, strucid, ptype, prop):
         """
         Method to add a skalar property to a structure
-        :Parameters:
-            - strucid (int): id of the structure in the DB
-            - ptype (str): name of the property
-            - prop (float): property value
+
+        Parameters:
+            strucid (int): id of the structure in the DB
+            ptype (str): name of the property
+            prop (float): property value
         """
         assert type(strucid) == int
         assert type(ptype) == str
@@ -231,10 +239,11 @@ class admin_api(ff.FF_api):
     def add_xy_property(self,strucid,ptype,data):
         """
         Method to add a dataset as property to the DB
-        :Parameters:
-            - strucid (int): id of the structure in the DB
-            - ptype (str): name of the property
-            - data (dict): dataset as dictionary 
+
+        Parameters:
+            strucid (int): id of the structure in the DB
+            ptype (str): name of the property
+            data (dict): dataset as dictionary 
         """
         assert type(strucid) == int
         assert type(ptype) == str
@@ -244,8 +253,10 @@ class admin_api(ff.FF_api):
     def fa_finish(self,faid):
         """
         Method to register a fireanalyzer run as finished
-        :Parameters:
-            - faid (int): id of fireanalyzer run
+
+        Parameters:
+
+            faid (int): id of fireanalyzer run
         """
         assert type(faid) == int
         self.mfp.fa_finish(faid)
@@ -255,9 +266,10 @@ class admin_api(ff.FF_api):
         """
         Method to create a new entry in the FFref table and to upload a file with
         reference information in the hdf5 file format.
-        :Parameters:
-            - name (str): name of the entry in the DB
-            - path (str): path to the hdf5 reference file
+
+        Parameters:
+            name (str): name of the entry in the DB
+            path (str): path to the hdf5 reference file
         """
         assert type(name) == type(hdf5path) == type(mfpxpath) == type(comment) == str
         with open(hdf5path, "rb") as handle:
@@ -276,10 +288,11 @@ class admin_api(ff.FF_api):
     def set_FFfrag(self,name,path,comment=""):
         """
         Method to create a new entry in the FFfrags table.
-        :Parameters:
-            - name (str): name of the entry in the db
-            - path (str): path to the mfpx file of the fragment
-            - comment (str): comment
+
+        Parameters:
+            name (str): name of the entry in the db
+            path (str): path to the mfpx file of the fragment
+            comment (str): comment
         """
         assert type(name) == type(path) == type(comment) == str
         with open(path, "r") as f:
@@ -293,10 +306,11 @@ class admin_api(ff.FF_api):
     def set_special_atype(self, at, ft, stype = "linear"):
         """
         Method to assign an attribute to an aftype
-        :Parameters:
-            - at (str): atype
-            - ft (str): fragtype
-            - stype (str,optional): attribute, defaults to linear
+
+        Parameters:
+            at (str): atype
+            ft (str): fragtype
+            stype (str,optional): attribute, defaults to linear
         """
         assert type(at) == type(ft) == type(stype) == str
         self.mfp.set_special_atype(at,ft,stype)
@@ -305,9 +319,10 @@ class admin_api(ff.FF_api):
     def set_orients(self, scid, path):
         """
         Method to upload an orients file
-        :Parameters:
-            - scid: id of the supercell entry
-            - path: path to the orientsfile
+
+        Parameters:
+            scid: id of the supercell entry
+            path: path to the orientsfile
         """
         with open(path, "r") as f:
             lines = f.read()
@@ -317,9 +332,10 @@ class admin_api(ff.FF_api):
     def set_scaledtopo(self, scid, path):
         """
         Method to upload a scaled topo file
-        :Parameters:
-            - scid: id of the supercell entry
-            - path: path ot the scaled topo file
+
+        Parameters:
+            scid: id of the supercell entry
+            path: path ot the scaled topo file
         """
         with open(path, "r") as f:
             lines = f.read()
