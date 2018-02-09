@@ -192,7 +192,7 @@ class FF_api(user.user_api):
         Method to get a dictionary of aftypes with special properties
         """
         res = self.mfp.list_special_atypes()
-        dic = {"linear": []}
+        dic = {"linear": [], "sqp":[]}
         for l in res:
             af = aftype(l[0], l[1])
             dic[l[2]].append(af)
