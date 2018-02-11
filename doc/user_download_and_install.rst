@@ -44,3 +44,4 @@ Installation
 
 In order to install the MOFplus API on your system you have to make sure that the 
 mofplus/mofplus directory is in the PYTHONPATH of your system.
+

@@ -233,6 +233,12 @@ class FF_api(user.user_api):
             raise ValueError("Required lenght for %s %s is %i" %(ptype,potential,rl))
         ret = self.mfp.set_params(FF, atypes, fragments, ptype, potential, fitsystem,params)
         return ret
+
+    def set_equiv(self, FF, fitsystem, condition, equivalence):
+        """
+        Method to set an equivalence 
+        """
+        return
     
     def set_params_interactive(self, FF, atypes, ptype, potential, fitsystem, params):
         """

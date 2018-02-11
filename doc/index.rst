@@ -19,25 +19,4 @@ used to communicate with the MOFplus website.
    :caption: User Documentation:
 
    user_download_and_install
-   user_getting_started
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-.. autoclass:: mofplus.user.user_api
-    :show-inheritance:
-    :members:
-
-.. autoclass:: mofplus.ff.FF_api
-    :show-inheritance:
-    :members:
-
-.. autoclass:: mofplus.admin.admin_api
-    :show-inheritance:
-    :members:
+   user_getted_started
