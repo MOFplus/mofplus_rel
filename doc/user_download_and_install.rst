@@ -43,5 +43,10 @@ Installation
 ------------
 
 In order to install the MOFplus API on your system you have to make sure that the 
-mofplus/mofplus directory is in the PYTHONPATH of your system.
+mofplus/mofplus directory is in the PYTHONPATH of your system. The easiest way
+to do so is to use the ``setup.py`` script. To install, invoke the following
+command:
 
+.. code-block:: bash
+
+    python setup.py install

@@ -6,7 +6,7 @@ from xmlrpclib import ServerProxy
 import logging
 import string
 import molsys
-from decorator import faulthandler, download, nolocal
+from decorator import faulthandler, download
 import ff
 logger = logging.getLogger("mofplus")
 
@@ -14,14 +14,14 @@ logger = logging.getLogger("mofplus")
 class admin_api(ff.FF_api):
 
     """
-    Via the admin_api class the API routines of MOFplus which are accessable for normal users and for admin users
-    can be used. Class is inherited from the ff_api class.
-    
-    The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively or
-    can be stated in ~/.mofplusrc.
+    This class implements methods needed to administrate the MOFplus database. This class is inherited
+    from the FF_api class.
 
     Args:
         banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
+
+    Warning:
+        The methods implemented in the admin_api class are only available for MOFplus administrators.
     """
 
     def __init__(self, banner = False):
@@ -30,9 +30,9 @@ class admin_api(ff.FF_api):
             self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/admin/xmlrpc' % (self.username, self.pw))
         else:
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/admin/xmlrpc' % (self.username, self.pw), allow_none = True)
-        self.check_adminconnection()
+        self._check_adminconnection()
 
-    def check_adminconnection(self):
+    def _check_adminconnection(self):
         """
         Method to check if the admin connection to MFP is alive
 
@@ -65,10 +65,9 @@ class admin_api(ff.FF_api):
    
     def add_bb_penalties(self,data):
         """
-        Method to adds penalties to building blocks
+        Method to add penalties to building blocks
         """
         retstring = self.mfp.add_bb_penalties(data)
-        print retstring
         return
 
     def upload_weaver_run(self, fwid, scid, fname, energy):
@@ -269,7 +268,9 @@ class admin_api(ff.FF_api):
 
         Parameters:
             name (str): name of the entry in the DB
-            path (str): path to the hdf5 reference file
+            hdf5path (str): path to the hdf5 reference file
+            mfpxpath (str): path to the mfpx file
+            comment (str): some comment on the reference data, defaults to ''
         """
         assert type(name) == type(hdf5path) == type(mfpxpath) == type(comment) == str
         with open(hdf5path, "rb") as handle:
@@ -280,6 +281,13 @@ class admin_api(ff.FF_api):
         return
     
     def set_FFref_graph(self,name, mfpxpath):
+        """
+        Method to upload the structure of a reference system in the mfpx file format.
+
+        Parameters:
+            name (str): name of the entry in the DB
+            mfpxpath (str): path to the mfpx file
+        """
         with open(mfpxpath, "r") as handle:
             mfpx = handle.read()
         self.mfp.set_FFref_graph(name,mfpx)
@@ -292,7 +300,7 @@ class admin_api(ff.FF_api):
         Parameters:
             name (str): name of the entry in the db
             path (str): path to the mfpx file of the fragment
-            comment (str): comment
+            comment (str): comment, defaults to ''
         """
         assert type(name) == type(path) == type(comment) == str
         with open(path, "r") as f:

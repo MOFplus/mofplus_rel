@@ -17,15 +17,15 @@ The first possibility is to setup in your home directory a hidden file called .m
 In this one you have to give your email adress, which you used to register at MOFplus and
 your password. An example is given below::
 
-    lucky.luke@shootout.de
-    lonesome
+    lucky.luke@lonesome.de
+    rantanplan
 
 If you do not provide such a file, the API is asking you at every startup for your
 email adress and password. 
 
 .. warning::
 
-   Credentials are safed as clear text python attributes of the API class
+   Credentials are saved as clear text python attributes of the API class
    during a session. Make sure that you use your MOFplus password only for MOFplus.
 
 .. note::
@@ -33,12 +33,55 @@ email adress and password.
    Developers which have a MOFplus application running on localhost can connect with
    the API by setting the environment variable 'MFPDB' to 'LOCAL'.
 
+Programm Structure
+------------------
+
+The MOFplus API package is divided into three modules holding three 
+
+   #. module ``user`` with class ``user_api``. 
+         Here all methods for querying
+         topology and MOF structure related data are implemented.
+   #. module ``ff`` with class ``ff_api``. 
+         Here all methods for getting and
+         setting force field parameters and reference data are available.
+         The ``ff_api`` class is inherited from the ``user_api`` class. So all
+         methods implemented in ``user_api`` are also available in ``ff_api``.
+   #. module ``admin`` with class ``admin_api``. 
+         Here all methods concerning administrating and maintainings the 
+         MOFplus database are implemented. This class is only available 
+         for those MOFplus users which have administrator permissions.
+         The ``admin_api`` class is inherited from the ``ff_api`` class. So all
+         methods implemented in ``user_api`` and ``ff_api`` are also available 
+         in ``admin_api``.
+
+
 Using the API
 -------------
 
-The MOFplus API package is divided into three subclasses called:
+For a detailed description of all implemented methods please have a look at the
+technical documentation section where all three classes are explained in more
+detail. How to create instance of the three above described classes is shown
+in the following examples:
 
-   #. user_api
-   #. ff_api
-   #. admin_api
+.. code-block:: python
 
+    >> import mofplus
+    >> api = mofplus.user_api()
+
+.. code-block:: python
+
+    >> import mofplus
+    >> api = mofplus.FF_api()
+
+.. code-block:: python
+
+    >> import mofplus
+    >> api = mofplus.admin_api()
+
+The api object can then be used for example to download a topology
+stored at MOFplus. 
+
+.. code-block:: python
+
+    >> import mofplus
+    >> api.get_net("tbo")

@@ -15,8 +15,24 @@ It has a PYTHON API based on
 used to communicate with the MOFplus website.
 
 .. toctree::
+   :maxdepth: 1
+   :numbered:
+
+   intro_citing_mofplus
+   intro_licence_information
+   intro_contact_information
+
+.. toctree::
    :maxdepth: 2
+   :numbered:
    :caption: User Documentation:
 
    user_download_and_install
    user_getted_started
+
+.. toctree::
+   :maxdepth: 2
+   :numbered:
+   :caption: Technical Documentation
+
+   tech_api

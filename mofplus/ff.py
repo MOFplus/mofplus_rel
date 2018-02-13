@@ -33,18 +33,29 @@ allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
 class FF_api(user.user_api):   
     """API class to query FF dependent data from MOFplus
 
-    Via the ff_api class the API routines of MOFplus concerning the retrieval of MOF-FF parameters can be used.
-    The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively or
-    can be stated in ~/.mofplusrc.
+    Via the FF_api class the API routines of MOFplus concerning the retrieval of MOF-FF parameters can be used.
+    A detailed description of the way parameters are stored in the database and how our assignment algorithm is 
+    working can be found at www.mofplus.org.
     
     The FF_api class inherits from the user_api class.
+
+    Note:
+        In several methods for receiving and uploading parameters the argument atypes has to be stated. This is 
+        always a string of atypes, seperated by a ':'. An atype is in consists in this case of the original atype
+        and the fragment it belongs, seperated by an '@'. Consider the following example string:
+        'c3_c2h1@ph:c3_c2h1@ph'.
+
+    Warning:
+        Every registered MOFplus user has the possibility to download parameters from the database. The upload of
+        parameters for a FF is only possible to those users which are maintainers of the FF. If you want to become
+        a FF maintainer or wants to host your own FF at MOFplus please contact Johannes P. Dürholt.
 
     Args:
         banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
     """
 
     
-    def format_atypes(self, atypes, ptype, potential):
+    def _format_atypes(self, atypes, ptype, potential):
         """
         Helper function to extract fragments out of atypes and to
         order atypes and fragments in dependence of the ptype. 
@@ -75,6 +86,12 @@ class FF_api(user.user_api):
         Parameters:
             FF (str): Name of the FF the parameters belong to
             ref (str): Name of the reference system the parameters belong to
+
+        Returns:
+            dictionary of parameters sorted in respect of the number of involved atoms.
+
+        Example:
+            >> api.get_params_from_ref('MOF-FF', 'benzene')
         """
         paramsets = self.mfp.get_params_from_ref(FF,ref)
         paramdict = {"onebody":{"charge":afdict(),"vdw":afdict(),"equil":afdict()},
@@ -107,23 +124,28 @@ class FF_api(user.user_api):
                 typedir[tt] = [(i[3],i[4])]
         return paramdict
  
-    @faulthandler
     def get_params(self,FF, atypes, ptype, potential,fitsystem):
         """
         Method to look up parameter sets in the DB
         
         Parameters:
             FF (str): Name of the FF the parameters belong to
-            atypes (list): list of atypes belonging to the term
+            atypes (str): list of atypes belonging to the term
             ptype (str): type of requested term
             potential (str): type of requested potential
             fitsystem (str): name of the FFfit/reference system the
                 parameterset is obtained from
+
+        Returns:
+            list of parameters
+
+        Example:
+            >> api.get_params('MOF-FF', 'c3_c2h1:c3_c2h1', 'bnd', 'mm3', 'benzene')
         """
         assert type(FF) == type(ptype) == type(atypes) == type(potential) == str
-        atypes, fragments = self.format_atypes(atypes,ptype, potential)
+        atypes, fragments = self._format_atypes(atypes,ptype, potential)
         params = self.mfp.get_params(FF, atypes, fragments, ptype, potential, fitsystem)
-        return params
+        return params[0]
            
 
     def list_FFrefs(self,FF):
@@ -133,6 +155,9 @@ class FF_api(user.user_api):
         Parameters:
             FF (str): Name of the FF the reference systems belong to, give "*" in order to 
                 get all available references independent from the FF
+
+        Returns:
+            dictionary of reference systems 
         """
         res = self.mfp.list_FFrefs(FF)
         dic = {}
@@ -158,7 +183,7 @@ class FF_api(user.user_api):
     @download("FFref", binary = True)
     def get_FFref(self,name):
         """
-        Method to retrieve an reference file in hdf5 file format from the DB
+        Method to download the available reference information in the hdf5 file format.
         
         Parameters:
             name (str): name of the entry in the DB
@@ -170,7 +195,7 @@ class FF_api(user.user_api):
     @download("FFfrag")
     def get_FFfrag(self,name, mol = False):
         """
-        Downloads a FFfrag in mfpx file format
+        Downloads a FF fragment in mfpx file format
         
         Parameters:
             name (str): name of the fragment
@@ -189,7 +214,7 @@ class FF_api(user.user_api):
 
     def list_special_atypes(self):
         """
-        Method to get a dictionary of aftypes with special properties
+        Method to get a dictionary of atypes with special properties
         """
         res = self.mfp.list_special_atypes()
         dic = {"linear": [], "sqp":[]}
@@ -224,10 +249,13 @@ class FF_api(user.user_api):
             params (list): parameterset
             fitsystem (str): name of the FFfit/reference system the
                 parameterset is obtained from
+
+        Example:
+            >> api.set_params('MOF-FF', 'c3_c1o2@co2:c3_c3@ph','bnd','mm3','CuPW',[5.6,1.4])
         """
         #assert type(FF) == type(ptype) == type(potential) == type(atypes) == str
         assert type(params) == list
-        atypes, fragments = self.format_atypes(atypes,ptype, potential)
+        atypes, fragments = self._format_atypes(atypes,ptype, potential)
         rl = {i[0]:i[1] for i in allowed_potentials[ptype]}[potential]
         if len(params) != rl:
             raise ValueError("Required lenght for %s %s is %i" %(ptype,potential,rl))
@@ -236,13 +264,30 @@ class FF_api(user.user_api):
 
     def set_equiv(self, FF, fitsystem, condition, equivalence):
         """
-        Method to set an equivalence 
+        Method to set an equivalence.
+
+        Parameters:
+            FF (str): Name of the FF the equivalence belongs to
+            fitsystem (str): Name of the FFfit/reference system the 
+                equivalence belongs to
+            condition (str): atypes of bonded partners
+            equivalence (str): atypes indicating the equivalence
+
+        Example:
+            >> api.set_equiv('MOF-FF', 'CuPW', 'c3_c1o2@co2:c3_c3@ph','c3_c3@ph:c3_c2h1@ph')
+
+            Here an equivalence is generated for the case that the atom with atomtype
+            c3_c1o2@co2 is bonded to atom c3_c3@ph. If this is the case the atomtype
+            c3_c3@ph is changed to c3_c2h1@ph.
         """
+        self.set_params(FF, condition, 'bnd', 'equiv', fitsystem, 
+                equivalence.split(':'))
         return
     
     def set_params_interactive(self, FF, atypes, ptype, potential, fitsystem, params):
         """
-        Method to upload parameter sets in the DB interactively
+        Method to upload parameter sets in the DB interactively. You can check and modify
+        the data, from the command line interactively before the upload.
 
         Parameters:
             FF (str): Name of the FF the parameters belong to

@@ -21,9 +21,8 @@ logger.addHandler(shandler)
 class user_api(object):
     """Basic API class to talk to MOFplus
 
-    Via the user_api class the API routines of MOFplus which are accessable for normal users can be used.
-    The credentials can be set either as environment variables MFPUSER and MFPPW or can be given interactively or
-    can be stated in ~/.mofplusrc.
+    Via the user_api class the API routines of MOFplus which are accessible for normal users and do not affect
+    FF parameters can be used.
 
     Args:
         banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
@@ -55,7 +54,7 @@ class user_api(object):
         else:
             logger.info('Trying to connect to global MOFplus API')
             self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw), allow_none = True)
-        self.check_connection()
+        self._check_connection()
         return
 
     def _credentials_from_rc(self):
@@ -85,9 +84,8 @@ class user_api(object):
         pw       = getpass.getpass()
         return username, pw
 
-    def check_connection(self):
+    def _check_connection(self):
         """
-
         Method to check if the connection to MFP is alive
 
         Raises:
@@ -117,32 +115,38 @@ class user_api(object):
    
     @download('topology')
     def get_net(self,netname, mol = False):
-        """Downloads a topology in mfpx file format
+        """
+        Downloads a topology in mfpx file format
         
         Parameters:
             netname (str): name of the net
-            mol    (bool,optional): if true a mol object is returned, if false
+            mol    (bool,optional): if True a mol object is returned, if False
                             topology is written to a file, defaults to False
         """
         lines = self.mfp.get_net(netname)
         return lines
 
     def get_list_of_nets(self):
-        """Returns a list of all topologies in the db"""
+        """
+        Returns a list of all topologies stored at MOFplus.
+        """
         return self.mfp.get_list_of_nets()
     
 
     def get_list_of_bbs(self):
-        """Returns a list of all BBS in the db"""
+        """
+        Returns a list of all building blocks stored at MOFplus.
+        """
         return self.mfp.get_list_of_bbs()
 
     @download('building block')
     def get_bb(self,bbname, mol = False):
-        """Downloads a bb in mfpx file format
+        """
+        Downloads a building block in mfpx file format
         
         Parameters:
             bbname (str): name of the bb
-            mol    (bool,optional): if true a mol object is returned, if false
+            mol    (bool,optional): if True a mol object is returned, if False
                             bb is written to a file, defaults to False
         """
         lines = self.mfp.get_bb(bbname)
@@ -150,12 +154,13 @@ class user_api(object):
     
     @download('MOF')
     def get_mof_structure_by_id(self,strucid, mol = False):
-        """Downloads a MOF structure in mfpx file format
+        """
+        Downloads a MOF structure in mfpx file format
         
         Parameters:
             strucid (str): id of the MOF structure in the DB
-            mol    (bool,optional): if true a mol object is returned, if false
-                            bb is written to a file, defaults to False
+            mol    (bool,optional): if True a mol object is returned, if False
+                            structure is written to a file, defaults to False
         """
         lines,name = self.mfp.get_mof_structure_by_id(strucid)
         return lines
@@ -172,7 +177,7 @@ class user_api(object):
     
     def get_vs(self,name):
         """
-        Returns the vertex symbol of a topology as a list of strings
+        Returns the vertex symbol of a topology as a list of strings.
         
         Parameters:
             name (str): Name of the topology
@@ -187,7 +192,7 @@ class user_api(object):
         Parameters:
             cs (list): List of the coordination sequences
             vs (list): List of the vertex symbols
-            cfilter (bool): If true no catenated nets are returned, defaults to True
+            cfilter (bool): If True no catenated nets are returned, defaults to True
         """
         assert type(cs) == list
         assert type(vs) == list
@@ -202,7 +207,7 @@ class user_api(object):
     @download('topology')
     def get_scaledtopo(self,id):
         """
-        Gets the scaled topo file for a given id supercell id.
+        Gets the scaled topo file for a given supercell id.
 
         Parameters:
             id(int): if of the supercell entry in the db for which
@@ -214,10 +219,10 @@ class user_api(object):
     @download('orients')
     def get_orients(self,id):
         """
-        Gets the orients file for a given id supercell id.
+        Gets the orients file for a given  supercell id.
 
         Parameters:
-            id(int): if of the supercell entry in the db for which
+            id(int): id of the supercell entry in the db for which
             the orients file is requested
         """
         lines = self.mfp.get_orients(id)
