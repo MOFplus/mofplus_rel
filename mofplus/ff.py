@@ -167,14 +167,15 @@ class FF_api(user.user_api):
 
 
     @download("FFref")
-    def get_FFref_graph(self,name, mol = False):
+    def get_FFref_graph(self,name, out='file'):
         """
         Downloads the reference system in mfpx file format
         
         Parameters:
             name (str): name of the reference system
-            mol    (bool,optional): if true a mol object is returned, if false
-                            fragment is written to a file, defaults to False
+            out    (str,optional): if 'file', mfpx file is written to file,
+                if 'mol' mol object is returned, if 'str' data is returned
+                as string, defaults to 'hdd'
         """
         assert type(name) == str
         lines = self.mfp.get_FFref_graph(name)
@@ -193,14 +194,15 @@ class FF_api(user.user_api):
         return bstr
 
     @download("FFfrag")
-    def get_FFfrag(self,name, mol = False):
+    def get_FFfrag(self,name, out='file'):
         """
         Downloads a FF fragment in mfpx file format
         
         Parameters:
             name (str): name of the fragment
-            mol    (bool,optional): if true a mol object is returned, if false
-                            fragment is written to a file, defaults to False
+            out    (str,optional): if 'file', mfpx file is written to file,
+                if 'mol' mol object is returned, if 'str' data is returned
+                as string, defaults to 'hdd'
         """
         assert type(name) == str
         lines = self.mfp.get_FFfrag(name)
