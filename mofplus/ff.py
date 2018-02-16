@@ -285,7 +285,23 @@ class FF_api(user.user_api):
         self.set_params(FF, condition, 'bnd', 'equiv', fitsystem, 
                 equivalence.split(':'))
         return
-    
+ 
+    def delete_params(self, FF, ref, tables = [1,2,3,4]):
+        """
+        Method to delete params from the database. 
+
+        Parameters:
+        
+            FF (str): Name of the FF the parameters belong to
+            ref (str): Name of the reference system the parameters belong to
+            tables(list): list specifying which parameters tables should be
+                deleted, 1 for onebody, 2 for twobody, 3 for threebody, 
+                4 for fourbody, giving [1,2,3,4] as argument results in
+                deleting all parameters from the fit, defaults to [1,2,3,4]
+        """
+        self.mfp.delete_params(FF, ref, tables)
+        return
+   
     def set_params_interactive(self, FF, atypes, ptype, potential, fitsystem, params):
         """
         Method to upload parameter sets in the DB interactively. You can check and modify
@@ -336,6 +352,8 @@ class FF_api(user.user_api):
                 potential = raw_input("Give modified pot:  ")
             elif x == "r":
                 fitsystem = raw_input("Give modified ref:  ")
+        return
+
 
 if __name__ == '__main__':
     import admin
