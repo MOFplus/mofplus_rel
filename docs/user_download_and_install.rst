@@ -38,6 +38,13 @@ In order to use the MOFplus API the following PYTHON packages has to be installe
 * molsys
 * `XMLRPCLIB <https://docs.python.org/2/library/xmlrpclib.html>`_
 
+Further recommended packages are:
+
+* `Sphinx <http://www.sphinx-doc.org>`_ needed if you want to compile the 
+  documentation
+* `Sphinx rtd theme <https://pypi.python.org/pypi/sphinx_rtd_theme>`_ needed if
+  you want to compile the documentation
+
 
 Installation
 ------------
@@ -50,3 +57,19 @@ command:
 .. code-block:: bash
 
     python setup.py install
+
+If you want to compile the documentation switch to the docs directory and type the follwoing
+commands:
+
+.. code-block:: bash
+    
+    cd docs
+    make html
+
+Afterwards you can open the documentation which a browser like firefox.
+
+.. code-block:: bash
+    
+    firefox _build/html/index.html
+
+
