@@ -1,0 +1,48 @@
+# Lines starting with '#' and sections without content
+# are not displayed by a call to 'details'
+#
+[paths]
+# Paths related to this bug.
+# suggested format: REPO_PATH:LINENUMBERS
+
+
+[details]
+Happened when fragmentizing JAST supercells
+# Additional details
+
+
+[expected]
+# The expected result
+No username and above all no password shown on error
+
+
+[actual]
+# What happened instead
+Traceback (most recent call last):
+  File "/home/roberto/sandbox/molsys/scripts/fragmentize", line 20, in <module>
+    frag(m)
+  File "/home/roberto/sandbox/molsys/molsys/util/fragmentizer.py", line 171, in __call__
+    self.read_frag_from_API(fname)
+  File "/home/roberto/sandbox/molsys/molsys/util/fragmentizer.py", line 125, in read_frag_from_API
+    m = self.api.get_FFfrag(fname, mol = True)
+  File "/home/roberto/sandbox/mofplus/mofplus/decorator.py", line 17, in inner
+    lines = func(*args, **kwargs)
+  File "/home/roberto/sandbox/mofplus/mofplus/ff.py", line 189, in get_FFfrag
+    lines = self.mfp.get_FFfrag(name)
+  File "/usr/lib/python2.7/xmlrpclib.py", line 1243, in __call__
+    return self.__send(self.__name, args)
+  File "/usr/lib/python2.7/xmlrpclib.py", line 1602, in __request
+    verbose=self.__verbose
+  File "/usr/lib/python2.7/xmlrpclib.py", line 1283, in request
+    return self.single_request(host, handler, request_body, verbose)
+  File "/usr/lib/python2.7/xmlrpclib.py", line 1331, in single_request
+    response.msg,
+xmlrpclib.ProtocolError: <ProtocolError for MYACTUALUSERNAME:MYACTUALPASSWORD@www.mofplus.org/API/user/xmlrpc: 500 INTERNAL SERVER ERROR>
+
+
+[reproduce]
+# Reproduction steps
+
+
+[comments]
+# Comments and updates - leave your name
