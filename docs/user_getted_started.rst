@@ -13,7 +13,7 @@ Setting up your Credentials
 For using the MOFplus API it is required to have an user account at www.mofplus.org.
 There are two possbilities to tell the API your credentials.
 
-The first possibility is to setup in your home directory a hidden file called .mofplusrc.
+The first possibility is to setup in your home directory a hidden file called ``.mofplusrc``.
 In this one you have to give your email adress, which you used to register at MOFplus and
 your password. An example is given below::
 

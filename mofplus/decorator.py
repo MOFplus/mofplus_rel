@@ -17,12 +17,14 @@ def download(dtype, binary = False):
         def inner(*args, **kwargs):
             try:
                 lines = func(*args, **kwargs)
-                if "mol" in kwargs.keys():
-                    if kwargs["mol"] == True:
+                if "out" in kwargs.keys():
+                    if kwargs["out"] == 'mol':
                         if dtype == "topology":
                             return molsys.topo.fromString(lines)
                         else:
                             return molsys.mol.fromString(lines)
+                    elif kwargs["out"] == 'str':
+                        return lines
                 if binary == False:
                     if dtype == "orients":
                         f=open(str(args[1])+'.orients', 'w')

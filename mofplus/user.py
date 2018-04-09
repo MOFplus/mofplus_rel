@@ -114,14 +114,15 @@ class user_api(object):
 
    
     @download('topology')
-    def get_net(self,netname, mol = False):
+    def get_net(self,netname, out = 'file'):
         """
         Downloads a topology in mfpx file format
         
         Parameters:
             netname (str): name of the net
-            mol    (bool,optional): if True a mol object is returned, if False
-                            topology is written to a file, defaults to False
+            out    (str,optional): if 'file', mfpx file is written to file,
+                if 'mol' mol object is returned, if 'str' data is returned
+                as string, defaults to 'hdd'
         """
         lines = self.mfp.get_net(netname)
         return lines
@@ -140,27 +141,29 @@ class user_api(object):
         return self.mfp.get_list_of_bbs()
 
     @download('building block')
-    def get_bb(self,bbname, mol = False):
+    def get_bb(self,bbname, out = 'file'):
         """
         Downloads a building block in mfpx file format
         
         Parameters:
             bbname (str): name of the bb
-            mol    (bool,optional): if True a mol object is returned, if False
-                            bb is written to a file, defaults to False
+            out    (str,optional): if 'file', mfpx file is written to file,
+                if 'mol' mol object is returned, if 'str' data is returned
+                as string, defaults to 'hdd'
         """
         lines = self.mfp.get_bb(bbname)
         return lines
     
     @download('MOF')
-    def get_mof_structure_by_id(self,strucid, mol = False):
+    def get_mof_structure_by_id(self,strucid, out='file'):
         """
         Downloads a MOF structure in mfpx file format
         
         Parameters:
             strucid (str): id of the MOF structure in the DB
-            mol    (bool,optional): if True a mol object is returned, if False
-                            structure is written to a file, defaults to False
+            out    (str,optional): if 'file', mfpx file is written to file,
+                if 'mol' mol object is returned, if 'str' data is returned
+                as string, defaults to 'hdd'
         """
         lines,name = self.mfp.get_mof_structure_by_id(strucid)
         return lines
@@ -205,13 +208,16 @@ class user_api(object):
         return nets
 
     @download('topology')
-    def get_scaledtopo(self,id):
+    def get_scaledtopo(self,id, out = 'file'):
         """
         Gets the scaled topo file for a given supercell id.
 
         Parameters:
             id(int): if of the supercell entry in the db for which
-            the scaledtopo is requested
+                the scaledtopo is requested
+            out    (str,optional): if 'file', mfpx file is written to file,
+                if 'mol' mol object is returned, if 'str' data is returned
+                as string, defaults to 'hdd'
         """
         lines = self.mfp.get_scaledtopo(id)
         return lines
@@ -223,7 +229,7 @@ class user_api(object):
 
         Parameters:
             id(int): id of the supercell entry in the db for which
-            the orients file is requested
+                the orients file is requested
         """
         lines = self.mfp.get_orients(id)
         return lines
