@@ -15,3 +15,4 @@ build
 molsys.log
 localstore
 docs/_build
+doc/_build
