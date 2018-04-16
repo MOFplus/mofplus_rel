@@ -225,7 +225,7 @@ class FF_api(user.user_api):
             dic[l[2]].append(af)
         return dic
 
-    def create_fit(self, FF, ref, azone=None, atfix = None, comment = ""):
+    def create_fit(self, FF, ref, azone=None, atfix = None, comment = "",parent=None):
         """
         Method to create a FFfit entry in the database which is necessary
         for storing parameters for a predefined FF
@@ -235,9 +235,12 @@ class FF_api(user.user_api):
             ref (str): name of the reference system
             azone (list): list of integers describing the active zone of the fit
             atfix (dict): dictionary containing special atypes information
-            comment (string): comment
+            comment (str): comment
+            parent (str): name of the parent reference system the actual system
+                should be linked to, defaults to None
+
         """
-        return self.mfp.create_fit(FF, ref, azone, atfix, comment)
+        return self.mfp.create_fit(FF, ref, azone, atfix, comment,parent)
 
     def set_params(self, FF, atypes, ptype, potential, fitsystem,params):
         """
