@@ -20,9 +20,9 @@ def download(dtype, binary = False):
                 if "out" in kwargs.keys():
                     if kwargs["out"] == 'mol':
                         if dtype == "topology":
-                            return molsys.topo.fromString(lines)
+                            return molsys.topo.from_string(lines)
                         else:
-                            return molsys.mol.fromString(lines)
+                            return molsys.mol.from_string(lines)
                     elif kwargs["out"] == 'str':
                         return lines
                 if binary == False:

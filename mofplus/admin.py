@@ -305,8 +305,8 @@ class admin_api(ff.FF_api):
         assert type(name) == type(path) == type(comment) == str
         with open(path, "r") as f:
             lines = f.read()
-            m = molsys.mol.fromString(lines)
-        m = molsys.mol.fromFile(path)
+            m = molsys.mol.from_string(lines)
+        m = molsys.mol.from_file(path)
         prio = m.natoms-m.elems.count("x")
         self.mfp.set_FFfrag(name, lines, prio, comment)
         return
