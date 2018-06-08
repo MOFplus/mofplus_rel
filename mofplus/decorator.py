@@ -43,6 +43,33 @@ def download(dtype, binary = False):
         return inner
     return download_decorator
 
+def batch_download(dtype):
+    """
+    mfp batch download decorator
+    """
+    def download_decorator(func):
+        def inner(*args, **kwargs):
+            ### excecute the decorated function
+            try:
+                dic_lines = {}
+                list_lines = func(*args,**kwargs)
+                ### put it to the dictionary
+                for i,n in enumerate(args[1]):
+                    dic_lines[n]=list_lines[i]
+                ### now handle the output
+                if "out" in kwargs.keys():
+                    if kwargs["out"] == "str":
+                        return dic_lines
+                ### case of files
+                for n,lines in dic_lines.items():
+                    with open("%s.mfpx" % n, "w") as f:
+                        f.write(lines)
+            except xmlrpclib.Fault:
+                logger.error('Requested systems not available on mofplus')
+        return inner
+    return download_decorator
+
+
 def faulthandler(func):
     def inner(*args,**kwargs):
         ret = func(*args, **kwargs)
