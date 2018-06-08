@@ -5,6 +5,7 @@ import xmlrpclib
 import molsys
 import logging
 from functools import wraps
+import time
 
 logger = logging.getLogger("mofplus")
 
@@ -15,6 +16,7 @@ def download(dtype, binary = False):
     def download_decorator(func):
         @wraps(func)
         def inner(*args, **kwargs):
+            time.sleep(0.1)
             try:
                 lines = func(*args, **kwargs)
                 if "out" in kwargs.keys():
