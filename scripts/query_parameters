@@ -13,8 +13,8 @@ import string
 import molsys.mol as mol
 
 multiassign = []
-if len(sys.argv) < 2:
-    multiassign = [i for in in sys.argv[2].split()]
+if len(sys.argv) > 2:
+    multiassign = [i for i in sys.argv[2].split()]
 
 fi = sys.argv[1]
 name  = fi.rsplit('.',1)[0]
@@ -26,7 +26,8 @@ m.read(fi, ftype = fi_type)
 m.addon('ff')
 m.set_logger_level('DEBUG')
 if multiassign != []:
-    m.ff.assign_multi_params(multiassign)
+    print multiassign
+    m.ff.assign_multi_params(multiassign,refsysname = 'xxx')
 else:
     m.ff.assign_params(['MOF-FF'])
 
