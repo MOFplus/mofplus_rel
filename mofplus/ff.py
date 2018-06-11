@@ -181,6 +181,21 @@ class FF_api(user.user_api):
         lines = self.mfp.get_FFref_graph(name)
         return lines
 
+
+    @batch_download("FFref")
+    def get_FFrefs_graph(self,names,out='file'):
+        """
+        Downloads the reference systems as mfpx files
+
+        Parameters:
+            names (list): names of the reference systems which should be
+                downloaded
+            out (str,optional): if "file", mfpx files are written to file,
+                if "str" files are returned as dictionary.
+        """
+        return self.mfp.get_FFrefs_graph(names)
+
+
     @download("FFref", binary = True)
     def get_FFref(self,name):
         """
