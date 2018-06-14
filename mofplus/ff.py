@@ -4,7 +4,7 @@
 import string
 import logging
 import sys
-from decorator import faulthandler, download
+from decorator import faulthandler, download, batch_download
 import user
 from molsys.util.aftypes import aftype, aftype_sort, afdict
 
@@ -181,6 +181,21 @@ class FF_api(user.user_api):
         lines = self.mfp.get_FFref_graph(name)
         return lines
 
+
+    @batch_download("FFref")
+    def get_FFrefs_graph(self,names,out='file'):
+        """
+        Downloads the reference systems as mfpx files
+
+        Parameters:
+            names (list): names of the reference systems which should be
+                downloaded
+            out (str,optional): if "file", mfpx files are written to file,
+                if "str" files are returned as dictionary.
+        """
+        return self.mfp.get_FFrefs_graph(names)
+
+
     @download("FFref", binary = True)
     def get_FFref(self,name):
         """
@@ -202,11 +217,23 @@ class FF_api(user.user_api):
             name (str): name of the fragment
             out    (str,optional): if 'file', mfpx file is written to file,
                 if 'mol' mol object is returned, if 'str' data is returned
-                as string, defaults to 'hdd'
+                as string, defaults to 'file'
         """
         assert type(name) == str
         lines = self.mfp.get_FFfrag(name)
         return lines
+
+    @batch_download("FFfrag")
+    def get_FFfrags(self, names, out='file'):
+        """
+        Downloads a list of FF fragments in mfpx file format
+        
+        Parameters:
+            names (list): names of the fragment as list
+            out    (str,optional): if 'file', mfpx files is written to files,
+                if 'str' data is returned as dictionary, defaults to 'file'
+        """
+        return self.mfp.get_FFfrags(names)
 
     def list_FFfrags(self):
         """
