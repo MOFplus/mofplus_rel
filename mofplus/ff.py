@@ -13,8 +13,8 @@ logger = logging.getLogger("mofplus")
 bodymapping = {1:"onebody", 2:"twobody",3:"threebody",4:"fourbody"}
 
 allowed_ptypes = {1: ["charge", "vdw", "equil"],
-        2: ["bnd", "chargemod", "vdwpr"],
-        3: ["ang"],
+        2: ["bnd", "chargemod", "vdwpr", "bnd5"],
+        3: ["ang", "ang5"],
         4: ["dih", "oop"]
         }
 
@@ -22,9 +22,11 @@ allowed_potentials = {"charge": [["point",1], ["gaussian",2], ["slater",2]],
         "equil": [["equil", 1]],
         "vdw": [["LJ",2], ["buck",2], ["buck6d",2]],
         "bnd": [["harm",2], ["mm3",2], ["quartic",5], ["morse",3], ["equiv", 2]],
+        "bnd5": [["harm",2], ["mm3",2], ["quartic",5], ["morse",3], ["equiv", 2]],
         "chargemod": [["point",1], ["gaussian",2], ["slater",2]],
         "vdwpr": [["LJ",2], ["buck",2], ["damped_buck",2]],
         "ang": [["harm",2],["mm3",2], ["quartic",5], ["fourier",5],  ["strbnd", 6]],
+        "ang5": [["harm",2],["mm3",2], ["quartic",5], ["fourier",5],  ["strbnd", 6]],
         "dih": [["harm",2], ["cos3",3], ["cos4",4]],
         "oop": [["harm",2]]}
 
@@ -95,8 +97,8 @@ class FF_api(user.user_api):
         """
         paramsets = self.mfp.get_params_from_ref(FF,ref)
         paramdict = {"onebody":{"charge":afdict(),"vdw":afdict(),"equil":afdict()},
-                "twobody":{"bnd":afdict(),"chargemod":afdict(), "vdwpr":afdict()},
-                "threebody":{"ang":afdict()},
+                "twobody":{"bnd":afdict(),"bnd5":afdict(),"chargemod":afdict(), "vdwpr":afdict()},
+                "threebody":{"ang":afdict(),"ang5":afdict()},
                 "fourbody": {"dih":afdict(),"oop":afdict()}}
         # RS (explanation to be improved by JPD)
         # paramset is a nested list of lists provided by MOF+
