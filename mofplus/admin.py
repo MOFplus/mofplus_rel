@@ -326,6 +326,17 @@ class admin_api(ff.FF_api):
         self.mfp.set_special_atype(at,ft,stype)
         return
 
+    def set_atype(self, at):
+        """
+        Method to set atom type in the API
+        
+        Args:
+            at (str): atomtype which should be inserted in the API
+        """
+        assert type(at) == str
+        self.mfp.set_atype(at)
+        return
+
     def set_orients(self, scid, path):
         """
         Method to upload an orients file
