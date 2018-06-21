@@ -119,7 +119,8 @@ class FF_api(user.user_api):
             typelist = [aftype(a,f) for a,f in zip(i[0],i[1])]
             typedir = paramdict[bodymapping[len(i[0])]][i[2]]
             tt = tuple(typelist)
-            if tt in typedir:
+            #if tt in typedir:
+            if typedir.index(tt) >= 0:
                 # another term .. append
                 typedir.appenditem(tt, (i[3],i[4]))
             else:
