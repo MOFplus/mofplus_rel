@@ -261,18 +261,20 @@ class admin_api(ff.FF_api):
         self.mfp.fa_finish(faid)
     
     
-    def set_FFref(self, name, hdf5path, mfpxpath, comment=""):
+    def set_FFref(self, name, hdf5path = None, mfpxpath = None, comment=""):
         """
         Method to create a new entry in the FFref table and to upload a file with
         reference information in the hdf5 file format.
 
         Parameters:
             name (str): name of the entry in the DB
-            hdf5path (str): path to the hdf5 reference file
-            mfpxpath (str): path to the mfpx file
+            hdf5path (str): path to the hdf5 reference file, default is <name>.hdf5
+            mfpxpath (str): path to the mfpx file, default is <name>.mfpx
             comment (str): some comment on the reference data, defaults to ''
         """
-        assert type(name) == type(hdf5path) == type(mfpxpath) == type(comment) == str
+        assert type(name) == str
+        if hdf5path is None: hdf5path=name+".hdf5"
+        if mfpxpath is None: mfpxpath=name+".mfpx"
         with open(hdf5path, "rb") as handle:
             binary = xmlrpclib.Binary(handle.read())
         with open(mfpxpath, "r") as handle:
@@ -322,6 +324,17 @@ class admin_api(ff.FF_api):
         """
         assert type(at) == type(ft) == type(stype) == str
         self.mfp.set_special_atype(at,ft,stype)
+        return
+
+    def set_atype(self, at):
+        """
+        Method to set atom type in the API
+        
+        Args:
+            at (str): atomtype which should be inserted in the API
+        """
+        assert type(at) == str
+        self.mfp.set_atype(at)
         return
 
     def set_orients(self, scid, path):
