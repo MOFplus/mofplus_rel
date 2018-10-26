@@ -259,6 +259,15 @@ class admin_api(ff.FF_api):
         """
         assert type(faid) == int
         self.mfp.fa_finish(faid)
+
+    def fw_finish(self,fwname):
+        """
+        Method to register a fireweaver run as finished.
+        
+        Args:
+            fwname (string): name of the workflow
+        """
+        self.mfp.fireweaver_finish(fwname)
     
     
     def set_FFref(self, name, hdf5path = None, mfpxpath = None, comment=""):
@@ -282,7 +291,7 @@ class admin_api(ff.FF_api):
         self.mfp.set_FFref(name, binary, mfpx, comment)
         return
     
-    def set_FFref_graph(self,name, mfpxpath):
+    def set_FFref_graph(self,name, mfpxpath = None):
         """
         Method to upload the structure of a reference system in the mfpx file format.
 
@@ -295,7 +304,7 @@ class admin_api(ff.FF_api):
         self.mfp.set_FFref_graph(name,mfpx)
         return
     
-    def set_FFfrag(self,name,path,comment=""):
+    def set_FFfrag(self,name,mfpxpath=None,comment=""):
         """
         Method to create a new entry in the FFfrags table.
 
@@ -304,11 +313,12 @@ class admin_api(ff.FF_api):
             path (str): path to the mfpx file of the fragment
             comment (str): comment, defaults to ''
         """
-        assert type(name) == type(path) == type(comment) == str
-        with open(path, "r") as f:
+        assert type(name) == type(comment) == str
+        if mfpxpath is None: mfpxpath=name+".mfpx"
+        with open(mfpxpath, "r") as f:
             lines = f.read()
             #m = molsys.mol.from_string(lines)
-        m = molsys.mol.from_file(path)
+        m = molsys.mol.from_file(mfpxpath)
         prio = m.natoms-m.elems.count("x")
         self.mfp.set_FFfrag(name, lines, prio, comment)
         return
