@@ -268,6 +268,7 @@ class admin_api(ff.FF_api):
             fwname (string): name of the workflow
         """
         self.mfp.fireweaver_finish(fwname)
+        
     
     
     def set_FFref(self, name, hdf5path = None, mfpxpath = None, comment=""):
