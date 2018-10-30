@@ -177,6 +177,12 @@ class admin_api(ff.FF_api):
         self.mfp.insert_bb(data)
         return
 
+    def insert_bb_from_smiles(self, name, smiles):
+        m = molsys.mol.from_smiles(smiles)
+        ret = self.mfp.insert_bb2(m.to_string(),"organic", name, smiles)
+        #ret = self.mfp.insert_bb_from_smiles(smiles, name)
+        return ret
+
     def set_cs(self, name, cs):
         """
         Method to set the cs of a topology.
