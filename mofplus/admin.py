@@ -10,6 +10,22 @@ from decorator import faulthandler, download
 import ff
 logger = logging.getLogger("mofplus")
 
+def smiles2can(smiles):
+    """
+    Method to transform a smiles into
+    a canonical smiles string.
+    
+    Args:
+        smiles (string): smiles string
+    
+    Returns:
+        string: canonical smiles string
+    """
+    import pybel
+    om = pybel.readstring("smi", smiles)
+    return om.write("can")[:-2]
+
+
 
 class admin_api(ff.FF_api):
 
@@ -178,10 +194,24 @@ class admin_api(ff.FF_api):
         return
 
     def insert_bb_from_smiles(self, name, smiles):
-        m = molsys.mol.from_smiles(smiles)
-        ret = self.mfp.insert_bb2(m.to_string(),"organic", name, smiles)
-        #ret = self.mfp.insert_bb_from_smiles(smiles, name)
-        return ret
+        """
+        Method to insert a bb in the database by specifying 
+        its smiles string. It is then converted to a canonical
+        smiles string.
+        
+        Args:
+            name (string): name of the bb in the database
+            smiles ([type]): smiles string of the structure
+        """
+        assert smiles.count("*") >= 2, "Smiles has to incorporate at least two connectors"
+        assert smiles.count(".") == 0, "More than one molecule specified"
+        import pybel
+        # transform to canonical
+        csmiles = smiles2can(smiles)
+        # open molsys
+        m = molsys.mol.from_smiles(csmiles)
+        ret = self.mfp.insert_bb2(m.to_string(),"organic", name, csmiles)
+        return 
 
     def set_cs(self, name, cs):
         """
