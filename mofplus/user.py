@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import xmlrpclib
-from xmlrpclib import ServerProxy
+from xmlrpclib import ServerProxy, ProtocolError
 import logging
+import sys
 import os
+import re
 import molsys
 import getpass
 from decorator import faulthandler, download
@@ -16,6 +18,23 @@ shandler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m-%d %H:%M')
 shandler.setFormatter(formatter)
 logger.addHandler(shandler)
+
+default_excepthook = sys.excepthook
+def custom_excepthook(etype, value, tb):
+    """
+    Prevents username and password printed in stderr
+
+    Arg:
+        etype: exception class
+        value: exception instance
+        tb:    traceback object
+    """
+    if etype is ProtocolError:
+        pattern = 'ProtocolError for .*:.*@www.mofplus.org'
+        replace = 'ProtocolError for <USERNAME>:<PW>@www.mofplus.org'
+        value.url = re.sub(pattern,replace,value.url)
+    default_excepthook(*args)
+sys.excepthook = custom_excepthook
 
 
 class user_api(object):
