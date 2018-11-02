@@ -255,6 +255,19 @@ class admin_api(ff.FF_api):
         self.mfp.add_xy_property(strucid, ptype,data)
         return
 
+    def finish(self, wfname):
+        """
+        Method to register an arbitrary fireworks as finished.
+        Implemented ones are fireweaver and firebbopt.
+        
+        Args:
+            wfname (wfname): name of the workflow
+        """
+        implemented = ["fw", "fbb"]
+        assert wfname.split("_")[0] in implemented
+        self.mfp.finish(wfname)
+
+
     def fa_finish(self,faid):
         """
         Method to register a fireanalyzer run as finished
