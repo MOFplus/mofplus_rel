@@ -33,7 +33,7 @@ def custom_excepthook(etype, value, tb):
         pattern = 'ProtocolError for .*:.*@www.mofplus.org'
         replace = 'ProtocolError for <USERNAME>:<PW>@www.mofplus.org'
         value.url = re.sub(pattern,replace,value.url)
-    default_excepthook(*args)
+    default_excepthook(etype, value, tb)
 sys.excepthook = custom_excepthook
 
 
