@@ -69,6 +69,16 @@ class admin_api(ff.FF_api):
             raise IOError
         return
     
+    def add_net(self,data):
+        """
+        Insert  or update a net entry in the database currently connected
+        Parameters:
+            net:  dictionary of net data
+        """
+        retstring = self.mfp.insert_net(data)
+        print retstring
+        return retstring
+    
     def delete_net(self, name):
         """
         Deletes a net from the db
@@ -78,6 +88,11 @@ class admin_api(ff.FF_api):
         """
         assert type(name) == str
         self.mfp.delete_net(name)
+        
+    def update_edge_database(self):
+        retstring = self.mfp.update_edge_database()
+        print retstring
+        return
    
     def add_bb_penalties(self,data):
         """
