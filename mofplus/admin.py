@@ -205,7 +205,6 @@ class admin_api(ff.FF_api):
         """
         assert smiles.count("*") >= 2, "Smiles has to incorporate at least two connectors"
         assert smiles.count(".") == 0, "More than one molecule specified"
-        import pybel
         # transform to canonical
         csmiles = smiles2can(smiles)
         # open molsys
@@ -293,7 +292,7 @@ class admin_api(ff.FF_api):
         Args:
             wfname (wfname): name of the workflow
         """
-        implemented = ["fw", "fbb"]
+        implemented = ["fw", "fbb", "fa"]
         assert wfname.split("_")[0] in implemented
         self.mfp.finish(wfname)
 
