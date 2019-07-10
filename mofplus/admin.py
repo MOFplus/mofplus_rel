@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import ssl
 import xmlrpclib
 from xmlrpclib import ServerProxy
 import logging
@@ -45,7 +46,8 @@ class admin_api(ff.FF_api):
         if self.location == 'LOCAL':
             self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/admin/xmlrpc' % (self.username, self.pw))
         else:
-            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/admin/xmlrpc' % (self.username, self.pw), allow_none = True)
+            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/admin/xmlrpc' % (self.username, self.pw), 
+                    allow_none = True, context = ssl._create_unverified_context())
         self._check_adminconnection()
 
     def _check_adminconnection(self):

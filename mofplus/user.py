@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import xmlrpclib
+import ssl
 from xmlrpclib import ServerProxy, ProtocolError
 import logging
 import sys
@@ -72,7 +73,8 @@ class user_api(object):
             self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/user/xmlrpc' % (self.username, self.pw))
         else:
             logger.info('Trying to connect to global MOFplus API')
-            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw), allow_none = True)
+            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw), 
+                    allow_none = True, context = ssl._create_unverified_context())
         self._check_connection()
         return
 
