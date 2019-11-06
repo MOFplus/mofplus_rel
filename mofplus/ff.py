@@ -4,8 +4,8 @@
 import string
 import logging
 import sys
-from decorator import faulthandler, download, batch_download
-import user
+from mofplus.decorator import faulthandler, download, batch_download
+from mofplus import user
 from molsys.util.aftypes import aftype, aftype_sort, afdict
 
 logger = logging.getLogger("mofplus")
@@ -350,46 +350,46 @@ class FF_api(user.user_api):
         """
         stop = False
         while not stop:
-            print "--------upload-------"
-            print "FF      : %s" % FF
-            print "atypes  : " +len(atypes)*"%s " % tuple(atypes)
-            print "type    : %s" % ptype
-            print "pot     : %s" % potential
-            print "ref     : %s" % fitsystem
-            print "params  : ",params
-            print "--------options---------"
-            print "[s]: skip"
-            print "[y]: write to db"
-            print "[a]: modify atypes"
-            print "[t]: modify type"
-            print "[p]: modify pot"
-            print "[r]: modify ref"
-            x = raw_input("Your choice:  ")
+            print("--------upload-------")
+            print("FF      : %s" % FF)
+            print("atypes  : " +len(atypes)*"%s " % tuple(atypes))
+            print("type    : %s" % ptype)
+            print("pot     : %s" % potential)
+            print("ref     : %s" % fitsystem)
+            print("params  : ",params)
+            print("--------options---------")
+            print("[s]: skip")
+            print("[y]: write to db")
+            print("[a]: modify atypes")
+            print("[t]: modify type")
+            print("[p]: modify pot")
+            print("[r]: modify ref")
+            x = input("Your choice:  ")
             if x == "s":
                 stop = True
-                print "Entry will be skipped"
+                print("Entry will be skipped")
             elif x == "y":
                 ret = self.set_params(FF, string.join(atypes,":"), ptype, potential, fitsystem, params)
-                print ret
+                print(ret)
                 if type(ret) != int:
                     "Error occurred during upload, try again!"
                 else:
-                    print "Entry is written to db"
+                    print("Entry is written to db")
                     stop = True
             elif x == "a":
-                inp = raw_input("Give modified atypes:  ")
+                inp = input("Give modified atypes:  ")
                 atypes = string.split(inp)
             elif x == "t":
-                ptype = raw_input("Give modified type:  ")
+                ptype = input("Give modified type:  ")
             elif x == "p":
-                potential = raw_input("Give modified pot:  ")
+                potential = input("Give modified pot:  ")
             elif x == "r":
-                fitsystem = raw_input("Give modified ref:  ")
+                fitsystem = input("Give modified ref:  ")
         return
 
 
 if __name__ == '__main__':
-    import admin
+    from mofplus import admin
     if len(sys.argv) > 1:   
         if sys.argv[1] == "user":
             api = user.user_api(banner=True)

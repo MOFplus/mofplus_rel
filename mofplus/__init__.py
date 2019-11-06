@@ -2,9 +2,9 @@
 import os
 import subprocess
 
-from user import user_api
-from ff import FF_api
-from admin import admin_api
+from .user import user_api
+from .ff import FF_api
+from .admin import admin_api
 
 def git_revision_hash():
     wrk_dir = os.getcwd()
