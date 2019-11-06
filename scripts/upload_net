@@ -23,14 +23,14 @@ name = m.fname.rsplit('.',1)[0]
 data = RCSR.make_upload_dictionary(m,name=name)
 api = mofplus.admin_api()
 
-print 'data contains:'
+print('data contains:')
 for i,d in enumerate(data.keys()):
-    print i,d
+    print(i,d)
 
-raw_input('continue? Ctrl+C t abort')
+input('continue? Ctrl+C t abort')
 ret = api.add_net(data)
 
-raw_input('update_edge_database? | should usually be done, but takes time. do only in the end Ctrl+C t abort')
+input('update_edge_database? | should usually be done, but takes time. do only in the end Ctrl+C t abort')
 api.update_edge_database()
 
 

@@ -31,7 +31,7 @@ m.read(fi, ftype = fi_type)
 m.addon('ff')
 m.set_logger_level('DEBUG')
 if multiassign != []:
-    print multiassign
+    print(multiassign)
     if fit is True:
         m.ff.assign_multi_params(multiassign,refsysname = 'xxx')
     else:

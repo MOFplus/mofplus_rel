@@ -85,10 +85,10 @@ for line in f_old:
     sline = string.split(line)
     if len(sline) == 0 or line[0] == "#":
         pass
-    elif sline[0].lower() in key_mapper.keys():
-        print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-        print "--------oldstyle----------"
-        print line
+    elif sline[0].lower() in list(key_mapper.keys()):
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("--------oldstyle----------")
+        print(line)
         ### translate key
         keyword = sline[0].lower()
         ptype = key_mapper[keyword]
@@ -99,50 +99,50 @@ for line in f_old:
             pot = "strbnd"
         ### translate atypes
         na      = leng_mapper[ptype]
-        atypes  = map(string.atoi,sline[1:1+na])
+        atypes  = list(map(string.atoi,sline[1:1+na]))
         natypes = string.join([trd[i] for i in atypes],":")
         #natypes = string.join(atypes,":")
         ### care for params
-        params  = map(string.atof,sline[1+na:])
+        params  = list(map(string.atof,sline[1+na:]))
         if ((ptype == "dih") and (len(params) == 4)): pot = "cos4"
         if ((ptype == "bnd") and (len(params) == 3)): pot = "morse"
         if ((ptype == "oop") and (len(params) == 1)): params.append(0.0)
         stop = False
         while not stop:
-            print "--------translation-------"
-            print "FF      : %s" % ffname
-            print "atypes  : %s" % natypes
-            print "type    : %s" % ptype
-            print "pot     : %s" % pot
-            print "ref     : %s" % ref
-            print "params  : ",params
-            print "--------options---------"
-            print "[s]: skip"
-            print "[y]: write to db"
-            print "[a]: modify atypes"
-            print "[t]: modify type"
-            print "[p]: modify pot"
-            print "[r]: modify ref"
-            x = raw_input("Your choice:  ")
+            print("--------translation-------")
+            print("FF      : %s" % ffname)
+            print("atypes  : %s" % natypes)
+            print("type    : %s" % ptype)
+            print("pot     : %s" % pot)
+            print("ref     : %s" % ref)
+            print("params  : ",params)
+            print("--------options---------")
+            print("[s]: skip")
+            print("[y]: write to db")
+            print("[a]: modify atypes")
+            print("[t]: modify type")
+            print("[p]: modify pot")
+            print("[r]: modify ref")
+            x = input("Your choice:  ")
             if x == "s":
                 stop = True
-                print "Entry will be skipped"
+                print("Entry will be skipped")
             elif x == "y":
                 ret = api.set_params(ffname, natypes, ptype, pot, ref, params)
-                print ret
+                print(ret)
                 if type(ret) != int:
                     "Error occurred during upload, try again!"
                 else:
-                    print "Entry is written to db"
+                    print("Entry is written to db")
                     stop = True
             elif x == "a":
-                inp = raw_input("Give modified atypes:  ")
-                ints = map(string.atoi, string.split(inp))
+                inp = input("Give modified atypes:  ")
+                ints = list(map(string.atoi, string.split(inp)))
                 natypes = string.join([trd[i] for i in ints],":")
             elif x == "t":
-                ptype = raw_input("Give modified type:  ")
+                ptype = input("Give modified type:  ")
             elif x == "p":
-                pot = raw_input("Give modified pot:  ")
+                pot = input("Give modified pot:  ")
             elif x == "r":
-                ref = raw_input("Give modified ref:  ")
+                ref = input("Give modified ref:  ")
 f_old.close()
