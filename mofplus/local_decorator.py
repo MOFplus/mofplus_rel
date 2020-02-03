@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import xmlrpclib
+import xmlrpc.client as xmlrpclib
 import molsys
 import logging
 from functools import wraps

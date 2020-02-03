@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import xmlrpclib
+import xmlrpc.client
 import ssl
-from xmlrpclib import ServerProxy, ProtocolError
+from xmlrpc.client import ServerProxy, ProtocolError
 import logging
 import sys
 import os
 import re
 import molsys
 import getpass
-from decorator import faulthandler, download
+from local_decorator import faulthandler, download
 
 logger = logging.getLogger("mofplus")
 logger.setLevel(logging.DEBUG)
@@ -124,14 +124,14 @@ class user_api(object):
         """
         Prints the MFP banner
         """
-        print  ":##::::'##::'#######::'########:::::::::::::::'###::::'########::'####:\n\
+        print(":##::::'##::'#######::'########:::::::::::::::'###::::'########::'####:\n\
 :###::'###:'##.... ##: ##.....::::'##::::::::'## ##::: ##.... ##:. ##::\n\
 :####'####: ##:::: ##: ##::::::::: ##:::::::'##:. ##:: ##:::: ##:: ##::\n\
 :## ### ##: ##:::: ##: ######:::'######::::'##:::. ##: ########::: ##::\n\
 :##. #: ##: ##:::: ##: ##...::::.. ##.::::: #########: ##.....:::: ##::\n\
 :##:.:: ##: ##:::: ##: ##::::::::: ##:::::: ##.... ##: ##::::::::: ##::\n\
 :##:::: ##:. #######:: ##:::::::::..::::::: ##:::: ##: ##::::::::'####:\n\
-:..:::::..:::.......:::..:::::::::::::::::::..:::::..::..:::::::::....:"
+:..:::::..:::.......:::..:::::::::::::::::::..:::::..::..:::::::::....:")
 
    
     @download('topology')

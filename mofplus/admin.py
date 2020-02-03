@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import ssl
-import xmlrpclib
-from xmlrpclib import ServerProxy
+import xmlrpc.client
+from xmlrpc.client import ServerProxy
 import logging
 import string
 import molsys
-from decorator import faulthandler, download
+from local_decorator import faulthandler, download
 import ff
 logger = logging.getLogger("mofplus")
 
@@ -60,12 +60,12 @@ class admin_api(ff.FF_api):
         try:
             self.mfp.add2(2,2)
             logger.info("Connection to admin API established")
-            print """
+            print("""
             We trust you have received the usual lecture from the MOF+ system administrator.
             It usually boils down to these two things:
                 #1) Think before you type.
                 #2) With great power comes great responsibility.
-            """
+            """)
         except xmlrpclib.ProtocolError:
             logger.error("Not possible to connect to MOF+ admin API. Check your credentials")
             raise IOError
@@ -78,7 +78,7 @@ class admin_api(ff.FF_api):
             net:  dictionary of net data
         """
         retstring = self.mfp.insert_net(data)
-        print retstring
+        print(retstring)
         return retstring
     
     def delete_net(self, name):
@@ -93,7 +93,7 @@ class admin_api(ff.FF_api):
         
     def update_edge_database(self):
         retstring = self.mfp.update_edge_database()
-        print retstring
+        print(retstring)
         return
    
     def add_bb_penalties(self,data):
