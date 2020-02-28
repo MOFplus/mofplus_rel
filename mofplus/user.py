@@ -10,7 +10,7 @@ import os
 import re
 import molsys
 import getpass
-from local_decorator import faulthandler, download
+from .decorator import faulthandler, download
 
 logger = logging.getLogger("mofplus")
 logger.setLevel(logging.DEBUG)
@@ -101,7 +101,7 @@ class user_api(object):
             username (str): username of current user
             pw (str): pw of current user
         """
-        username = raw_input("Email:")
+        username = input("Email:")
         pw       = getpass.getpass()
         return username, pw
 
@@ -115,7 +115,7 @@ class user_api(object):
         try:
             self.mfp.add(2,2)
             logger.info("Connection to user API established")
-        except xmlrpclib.ProtocolError:
+        except xmlrpc.client.ProtocolError:
             logger.error("Not possible to connect to MOF+. Check your credentials")
             raise IOError
         return

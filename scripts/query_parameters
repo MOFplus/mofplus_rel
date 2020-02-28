@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 ########################################################################
@@ -16,6 +16,11 @@ multiassign = []
 if len(sys.argv) > 2:
     multiassign = [i for i in sys.argv[2].split()]
 
+if 'fit' in sys.argv:
+    fit=True
+else:
+    fit=False
+
 fi = sys.argv[1]
 name  = fi.rsplit('.',1)[0]
 fi_type = fi.split('.')[-1]
@@ -26,8 +31,11 @@ m.read(fi, ftype = fi_type)
 m.addon('ff')
 m.set_logger_level('DEBUG')
 if multiassign != []:
-    print multiassign
-    m.ff.assign_multi_params(multiassign,refsysname = 'xxx')
+    print(multiassign)
+    if fit is True:
+        m.ff.assign_multi_params(multiassign,refsysname = 'xxx')
+    else:
+        m.ff.assign_multi_params(multiassign)
 else:
     m.ff.assign_params(['MOF-FF'])
 
