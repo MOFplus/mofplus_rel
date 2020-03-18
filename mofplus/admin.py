@@ -1,9 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import ssl
 import xmlrpc.client
-from xmlrpc.client import ServerProxy
+# try to use xmlrpxlibex from https://github.com/benhengx/xmlrpclibex (install with pip3 install xmlrpclibex)
+try:
+    from xmlrpclibex import xmlrpclibex
+    can_use_socks = True     
+except ImportError:
+    can_use_socks = False
 import logging
 import string
 import molsys
@@ -22,7 +27,7 @@ def smiles2can(smiles):
     Returns:
         string: canonical smiles string
     """
-    import pybel
+    from openbabel import pybel
     om = pybel.readstring("smi", smiles)
     return om.write("can")[:-2]
 
@@ -42,33 +47,15 @@ class admin_api(ff.FF_api):
     """
 
     def __init__(self, banner = False):
-        ff.FF_api.__init__(self, banner=banner)
-        if self.location == 'LOCAL':
-            self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/admin/xmlrpc' % (self.username, self.pw))
-        else:
-            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/admin/xmlrpc' % (self.username, self.pw), 
-                    allow_none = True, context = ssl._create_unverified_context())
-        self._check_adminconnection()
+        """init the admin API object
+        
+        We use the __init__ of the user API object here (inherited in the ff API).
+        by providing api="admin" the admin api will be connected
 
-    def _check_adminconnection(self):
+        Args:
+            banner (bool, optional): print banner. Defaults to False.
         """
-        Method to check if the admin connection to MFP is alive
-
-        Raises:
-            IOError: If connection not possible
-        """
-        try:
-            self.mfp.add2(2,2)
-            logger.info("Connection to admin API established")
-            print("""
-            We trust you have received the usual lecture from the MOF+ system administrator.
-            It usually boils down to these two things:
-                #1) Think before you type.
-                #2) With great power comes great responsibility.
-            """)
-        except xmlrpc.client.ProtocolError:
-            logger.error("Not possible to connect to MOF+ admin API. Check your credentials")
-            raise IOError
+        ff.FF_api.__init__(self, banner=banner, api="admin")
         return
     
     def add_net(self,data):

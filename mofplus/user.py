@@ -1,9 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import xmlrpc.client
 import ssl
-from xmlrpc.client import ServerProxy, ProtocolError
+# try to use xmlrpxlibex from https://github.com/benhengx/xmlrpclibex (install with pip3 install xmlrpclibex)
+try:
+    from xmlrpclibex import xmlrpclibex
+    can_use_socks = True     
+except ImportError:
+    can_use_socks = False
 import logging
 import sys
 import os
@@ -30,7 +35,7 @@ def custom_excepthook(etype, value, tb):
         value: exception instance
         tb:    traceback object
     """
-    if etype is ProtocolError:
+    if etype is xmlrpc.client.ProtocolError:
         pattern = 'ProtocolError for .*:.*@www.mofplus.org'
         replace = 'ProtocolError for <USERNAME>:<PW>@www.mofplus.org'
         value.url = re.sub(pattern,replace,value.url)
@@ -46,9 +51,11 @@ class user_api(object):
 
     Args:
         banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False
+        api          (string, optional): API to connect to, defaults to "user", can be "admin"
     """
 
-    def __init__(self, banner = False):
+    def __init__(self, banner = False, api="user"):
+        assert api in ["user", "admin"]
         if banner: self._print_banner()
         try:
             logger.info("Get credentials from .mofplusrc")
@@ -64,18 +71,40 @@ class user_api(object):
                 logger.info("Get credentials from prompt")
                 self.username, self.pw = self._credentials_from_cmd()
         ### read from environment variables to which DB should be connected, default is the global www.mofplus.org
+        if api == "admin":
+            logger.info("CONNECTING TO ADMIN API")
+        ### if MFPDB is set then we connect to localhost
         if 'MFPDB' in os.environ:
-            self.location = os.environ['MFPDB']
+            self.location = "LOCAL" 
+            MFPDBname = os.environ['MFPDB']
         else:
             self.location = 'GLOBAL'
+        # now open the connection
         if self.location == 'LOCAL':
-            logger.info('Trying to connect to local MOFplus API')
-            self.mfp = ServerProxy('http://%s:%s@localhost/MOFplus_final2/API/user/xmlrpc' % (self.username, self.pw))
+            # if we are using a local version and can_use_socks is true then check if MFP_PRXY settings are present
+            if can_use_socks and 'MFP_PRXY_IP' in os.environ:
+                proxy = {
+                    'host'       : os.environ["MFP_PRXY_IP"],
+                    'port'       : '8080',
+                    # 'username'   : os.environ["MFP_PRXY_USR"],
+                    # 'password'   : os.environ["MFP_PRXY_PWD"],
+                    'is_socks'   : True,
+                    'socks_type' : 'v5',
+                }
+                logger.info('Trying to connect to local MOFplus API at localhost/%s via proxy at %s' % (MFPDBname, proxy['host']))
+                self.mfp = xmlrpclibex.ServerProxy(
+                    'http://%s:%s@localhost/%s/API/%s/xmlrpc' % (self.username, self.pw, MFPDBname, api),
+                    timeout = 30,
+                    proxy = proxy
+                )
+            else:
+                logger.info('Trying to connect to local MOFplus API at localhost/%s' % MFPDBname)
+                self.mfp = xmlrpc.client.ServerProxy('http://%s:%s@localhost/%s/API/%s/xmlrpc' % (self.username, self.pw, MFPDBname, api))
         else:
             logger.info('Trying to connect to global MOFplus API')
-            self.mfp = ServerProxy('https://%s:%s@www.mofplus.org/API/user/xmlrpc' % (self.username, self.pw), 
+            self.mfp = xmlrpc.client.ServerProxy('https://%s:%s@www.mofplus.org/API/%s/xmlrpc' % (self.username, self.pw, api), 
                     allow_none = True, context = ssl._create_unverified_context())
-        self._check_connection()
+        self._check_connection(api)
         return
 
     def _credentials_from_rc(self):
@@ -105,7 +134,7 @@ class user_api(object):
         pw       = getpass.getpass()
         return username, pw
 
-    def _check_connection(self):
+    def _check_connection(self, api):
         """
         Method to check if the connection to MFP is alive
 
@@ -114,9 +143,16 @@ class user_api(object):
         """
         try:
             self.mfp.add(2,2)
-            logger.info("Connection to user API established")
+            logger.info("Connection to %s API established" % api)
+            if api == "admin":
+                print("""
+            We trust you have received the usual lecture from the MOF+ system administrator.
+            It usually boils down to these two things:
+                #1) Think before you type.
+                #2) With great power comes great responsibility.
+            """)                
         except xmlrpc.client.ProtocolError:
-            logger.error("Not possible to connect to MOF+. Check your credentials")
+            logger.error("Not possible to connect to MOF+ %s API. Check your credentials" % api)
             raise IOError
         return
 
