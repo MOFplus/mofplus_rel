@@ -12,7 +12,7 @@ https://github.com/MOFplus/mofplus.git or git@github.com:MOFplus/mofplus.git
 
 Afterwards the PATH and PYTHONPATH have to be updated. Add to your .bashrc :
 ```
-export PATH=/home/$USER/sandbox/molsys/scripts:$PATH
+export PATH=/home/$USER/sandbox/mofplus/scripts:$PATH
 alias mofplus="python3 -i /home/$USER/sandbox/mofplus/mofplus/ff.py"
 ```
 
