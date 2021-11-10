@@ -37,4 +37,3 @@ used to communicate with the MOFplus website.
    :caption: Technical Documentation
    
    tech_api
-   webserver_management

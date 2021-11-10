@@ -12,22 +12,9 @@ Download the code
 
 The latest stable source code release can be downloaded here:
 
-https://www.mofplus.org
-
-Choose a suitable directory, download and unpack the archive
-
-
 .. code-block:: bash
 
-    curl -kLO https://www.mofplus.org
-    tar -xvzf mofplus.tar.gz
-    cd mofplus
-
-As alternatice you can get the most recent version by cloning its git repository:
-
-.. code-block:: bash
-
-    git clone https://github.com/MOFplus
+    git clone https://github.com/mofplus_rel
 
 
 Dependencies
@@ -50,13 +37,7 @@ Installation
 ------------
 
 In order to install the MOFplus API on your system you have to make sure that the 
-mofplus/mofplus directory is in the PYTHONPATH of your system. The easiest way
-to do so is to use the ``setup.py`` script. To install, invoke the following
-command:
-
-.. code-block:: bash
-
-    python setup.py install
+mofplus/mofplus directory is in the PYTHONPATH of your system.
 
 If you want to compile the documentation switch to the docs directory and type the follwoing
 commands:

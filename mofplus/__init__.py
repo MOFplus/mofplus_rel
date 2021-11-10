@@ -4,7 +4,7 @@ import subprocess
 
 from .user import user_api
 from .ff import FF_api
-from .admin import admin_api
+# from .admin import admin_api
 
 def git_revision_hash():
     wrk_dir = os.getcwd()
@@ -25,4 +25,5 @@ rev_no, commit = git_revision_hash()
 __version_info__ = (0, 0, rev_no, "%s"%commit)
 __version__ = "%i.%i.%i.%s"%__version_info__
 
-__all__ = ["user_api", "FF_api", "admin_api"]
+# __all__ = ["user_api", "FF_api", "admin_api"]  admin_api removed in release repo (RS)
+__all__ = ["user_api", "FF_api"]

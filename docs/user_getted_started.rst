@@ -36,7 +36,7 @@ email adress and password.
 Programm Structure
 ------------------
 
-The MOFplus API package is divided into three modules holding three 
+The MOFplus API package is divided modules 
 
    #. module ``user`` with class ``user_api``. 
          Here all methods for querying
@@ -46,14 +46,7 @@ The MOFplus API package is divided into three modules holding three
          setting force field parameters and reference data are available.
          The ``ff_api`` class is inherited from the ``user_api`` class. So all
          methods implemented in ``user_api`` are also available in ``ff_api``.
-   #. module ``admin`` with class ``admin_api``. 
-         Here all methods concerning administrating and maintainings the 
-         MOFplus database are implemented. This class is only available 
-         for those MOFplus users which have administrator permissions.
-         The ``admin_api`` class is inherited from the ``ff_api`` class. So all
-         methods implemented in ``user_api`` and ``ff_api`` are also available 
-         in ``admin_api``.
-
+   
 
 Using the API
 -------------
@@ -73,15 +66,9 @@ in the following examples:
     >> import mofplus
     >> api = mofplus.FF_api()
 
-.. code-block:: python
-
-    >> import mofplus
-    >> api = mofplus.admin_api()
-
 The api object can then be used for example to download a topology
 stored at MOFplus. 
 
 .. code-block:: python
 
-    >> import mofplus
     >> api.get_net("tbo")

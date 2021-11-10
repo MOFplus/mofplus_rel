@@ -50,7 +50,7 @@ class FF_api(user.user_api):
     Warning:
         Every registered MOFplus user has the possibility to download parameters from the database. The upload of
         parameters for a FF is only possible to those users which are maintainers of the FF. If you want to become
-        a FF maintainer or wants to host your own FF at MOFplus please contact Johannes P. Dürholt.
+        a FF maintainer or wants to host your own FF at MOFplus please contact us at info@mofplus.org.
 
     Args:
         banner       (bool, optional): If True, the MFP API banner is printed to SDTOUT, defaults to False

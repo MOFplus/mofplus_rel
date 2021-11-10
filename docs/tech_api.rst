@@ -19,8 +19,3 @@ FF API
    :show-inheritance:
    :members:
 
-ADMIN API
----------
-.. autoclass:: mofplus.admin.admin_api
-   :show-inheritance:
-   :members:
