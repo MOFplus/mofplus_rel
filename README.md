@@ -4,6 +4,10 @@ mofplus is the API library to the [MOFplus](www.mofplus.org) webpage. It can be 
 
 ### INSTALLING
 
+We recommend to install mofplus as part of the [cmc-tools](https://github.com/MOFplus/cmc-tools) and follow the installation instructions in the corresponding
+[README](https://github.com/MOFplus/cmc-tools#readme).
+
+Otherwise:
 In order to install molsys, clone this repository into the destination of your choosing (we always use /home/%USER/sandbox/, also the installation instructions below use this path)
 
 ```
@@ -39,10 +43,6 @@ query_parameters [MFPXFILENAME] "MOF-FF"
 ```
 where `[MFPXFILENAME]` is the structure to be assigned and `"MOF-FF"` is the forcefield to be assigned 
 
-## Running the tests
-
-There will soon be a testing framework framework available.
-
 ## Building the Documentation
 
 Mandatory dependencies to built the documentation can be obtained via pip:
@@ -61,14 +61,10 @@ A Built directory containing
 ```
 was created. It can be opened with the browser of your choice
 
-## Contributing
-
-TBA
-
 ## License
 
-TBA
+MIT License
 
-## Acknowledgments
+
 
 
